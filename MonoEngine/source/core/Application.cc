@@ -80,6 +80,8 @@ namespace Monoworks
 
 		m_pApplicationCreationInfos = *pInfos;
 
+		m_GraphicsAPI = pInfos->GraphicsAPI;
+
 		m_GraphicsContext = Ref<RHI::CVulkanContext>::Create();
 		m_GraphicsContext->Init();
 	}

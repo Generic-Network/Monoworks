@@ -30,6 +30,10 @@ namespace Monoworks::RHI
 		const EPresentationMedium Medium = MW_PRESENTATION_MEDIUM_NONE;
 	};
 
+	struct IPresentationSurfaceCreationInfo
+	{
+		const EPresentationMedium Medium = MW_PRESENTATION_MEDIUM_NONE;
+	};
 
 	struct IPresentationPresentInfo 
 	{
@@ -44,6 +48,8 @@ namespace Monoworks::RHI
 		virtual void Init( const IPresentationInitializationInfo* pInfo ) NOEXCEPT = 0;
 		virtual void Init2( const IPresentationInitialization2Info* pInfo ) NOEXCEPT = 0;
 		virtual void Shutdown() NOEXCEPT = 0;
+
+		virtual void CreateSurface( const IPresentationSurfaceCreationInfo* pInfo ) NOEXCEPT = 0;
 
 		virtual bool OnResize( SEvent& event ) = 0;
 

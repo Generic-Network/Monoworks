@@ -105,7 +105,7 @@ namespace Monoworks::RHI
 		
 		NODISCARD VkFormat FindSupportedFormat( const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features );
 
-		NODISCARD SwapChainSupportDetails QuerySwapChainSupport( const VkPhysicalDevice* pPhysDevice, VkSurfaceKHR* pSurface );
+		NODISCARD SwapChainSupportDetails QuerySwapChainSupport( VkPhysicalDevice pPhysDevice, VkSurfaceKHR pSurface );
 
 		void CreatePhysicalDevice(VkInstance* instance) noexcept;
 
@@ -138,10 +138,9 @@ namespace Monoworks::RHI
 		std::vector<const char*> m_DeviceExtensions =
 		{
 			VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME, 
-			VK_KHR_SHADER_SUBGROUP_ROTATE_EXTENSION_NAME, 
 			VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
 #ifdef MW_PLATFORM_OSX
-			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+			,VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 #endif
 		};
 

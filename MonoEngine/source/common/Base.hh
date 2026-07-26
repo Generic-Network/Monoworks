@@ -100,13 +100,13 @@ extern TracyVkCtx TracyTransferContext;
 
 #ifdef MW_VULKAN
 #define MW_VK_CHECK(x, err, ...) if (x != VK_SUCCESS) { MW_ASSERT(err, __VA_ARGS__); };
+#define MW_VK_VERSION VK_API_VERSION_1_3
 #endif
 
 #define MW_REG_CVAR(var) Monoworks::CCvarManager::RegisterVariable(var);
 #define MW_SET_CVAR(varName, value) Monoworks::CCvarManager::Set(varName, value);
 #define MW_SET_FLOAT_CVAR(varName, value) Monoworks::CCvarManager::SetValue(varName, value);
 
-#define MW_VK_VERSION VK_API_VERSION_1_4
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -132,12 +132,14 @@ namespace Monoworks
 {
 	constexpr u32 MaxFramesInFlight = 3;
 
-	struct SAppVersion
+	struct SVersion
 	{
 		u8 Major;
 		u8 Minor;
-		u8 Patch;
+		u16 Patch;
 	};
+
+	using SAppVersion = SVersion;
 
     enum EGraphicsAPI
     {

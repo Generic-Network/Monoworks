@@ -47,7 +47,7 @@ namespace Monoworks
 		cfg.RegisterValue("Runtime", "Window W", "1920");
 		cfg.RegisterValue("Runtime", "Window H", "1080");
 
-		cfg.RegisterValue("Rendering", "GAPI", std::format("{}", (int)MW_GAPI_NONE));
+		cfg.RegisterValue("Rendering", "GAPI", std::format("{}", (int)MW_GAPI_VULKAN));
 		cfg.RegisterValue("Rendering", "Default Width", "1920");
 		cfg.RegisterValue("Rendering", "Default Height", "1080");
 		cfg.RegisterValue("Rendering", "Resizable", "true");
@@ -66,12 +66,14 @@ namespace Monoworks
 		SApplicationCreateInfos appInfos{};
 		appInfos.pName = strdup(cfg.Get("Runtime", "Title").c_str());
 		appInfos.RenderableExtent = { cfg.Get<u32>("Rendering", "Default Width"), cfg.Get<u32>("Rendering", "Default Height") };
-		appInfos.GraphicsAPI = (EGraphicsAPI)cfg.Get<u32>("Rendering", "GAPI");
+		appInfos.GraphicsAPI = MW_GAPI_VULKAN;
 		appInfos.ArgumentCount = pArgc;
 		appInfos.pArguments = pArgv;
 		appInfos.Version = { 1, 0, 0 };
 		appInfos.RequiredExtensionCallback = +[](u32* extensionCount) { return (const char**)SDL_Vulkan_GetInstanceExtensions(extensionCount); };
 		appInfos.pPresenter = m_pPresenter.raw();
+		appInfos.UseSDL = true;
+		appInfos.UseSwapchain = true;
 
 		m_pApplication->Init(&appInfos);
 

@@ -19,6 +19,8 @@ namespace Monoworks::RHI
 		void Init2(  const IPresentationInitialization2Info* pInfo ) NOEXCEPT override;
 		void Shutdown() NOEXCEPT;
 
+		void CreateSurface( const IPresentationSurfaceCreationInfo* pInfo ) NOEXCEPT override;
+
 		bool OnResize( SEvent& event ) override;
 
 		NODISCARD u32 Aquire( const IPresentationAcquisitionInfo* pInfo ) NOEXCEPT override;

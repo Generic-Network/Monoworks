@@ -38,7 +38,7 @@ namespace Monoworks
 		*/
 		MAYBE_UNUSED char** pArguments = nullptr;
 		/**
-		 * @brief Callback to retrieve
+		 * @brief Callback to retrieve required extensions
 		 */
 		MAYBE_UNUSED const char** (*RequiredExtensionCallback)(u32* extensionCount);
 		/**

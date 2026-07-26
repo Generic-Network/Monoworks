@@ -5,11 +5,15 @@
 
 namespace Monoworks::RHI 
 {
+	// Presenter Implementation are in the Application Specific RHI Component
+
 	struct SVulkanSDLPresentationInitializationInfo : public IPresentationInitializationInfo 
 	{
 		SVulkanSDLPresentationInitializationInfo() { *const_cast<EPresentationMedium*>( &Medium ) = MW_PRESENTATION_MEDIUM_VULKAN_SDL; };
-		VkInstance* pInstance;
 		CVulkanDevice* pVulkanDevice;
+		const VkInstance* pInstance;
+		const VkPhysicalDevice* pPhysDevice;
+		const VkDevice* pDevice;
 
 	};
 
@@ -17,12 +21,16 @@ namespace Monoworks::RHI
 	{
 		SVulkanSDLPresentationInitialization2Info() { *const_cast<EPresentationMedium*>( &Medium ) = MW_PRESENTATION_MEDIUM_VULKAN_SDL; };
 		CVulkanDevice* pVulkanDevice;
+		VkPhysicalDevice pPhysDevice;
+		const VkDevice* pDevice;
 	};
 
 	struct SVulkanSDLPresentationAcquisitionInfo : public IPresentationAcquisitionInfo 
 	{
 		SVulkanSDLPresentationAcquisitionInfo() { *const_cast<EPresentationMedium*>( &Medium ) = MW_PRESENTATION_MEDIUM_VULKAN_SDL; }
 		CVulkanDevice* pVulkanDevice;
+		const VkPhysicalDevice* pPhysDevice;
+		const VkDevice* pDevice;
 		VkFence* pInFlightFence;
 		VkSemaphore* pImageAvailableSemaphore;
 	};
@@ -31,8 +39,16 @@ namespace Monoworks::RHI
 	{
 		SVulkanSDLPresentationPresentInfo() { *const_cast<EPresentationMedium*>( &Medium ) = MW_PRESENTATION_MEDIUM_VULKAN_SDL; }
 		CVulkanDevice* pVulkanDevice;
+		const VkPhysicalDevice* pPhysDevice;
+		const VkDevice* pDevice;
 		VkQueue* pPresentQueue;
 		VkSemaphore* pRenderFinishedSemaphore;
 		u32* pImageIndex;
+	};
+
+	struct SVulkanSDLPresentationSurfaceCreationInfo : public IPresentationSurfaceCreationInfo
+	{
+		SVulkanSDLPresentationSurfaceCreationInfo() { *const_cast< EPresentationMedium* >(&Medium) = MW_PRESENTATION_MEDIUM_VULKAN_SDL; } 
+		const VkInstance* pInstance;
 	};
 }

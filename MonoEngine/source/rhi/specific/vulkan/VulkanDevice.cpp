@@ -88,7 +88,7 @@ namespace Monoworks::RHI
 		vkEnumeratePhysicalDevices(*instance, &deviceCount, nullptr);
 		if (deviceCount == 0)
 		{
-			MW_ERROR("Failed to find GPUs with Vulkan support!");
+			MW_ERROR("Failed to find GPUs with Vulkan support");
 		}
 		MW_INFO("Device count: {}", deviceCount);
 		std::vector<VkPhysicalDevice> devices(deviceCount);
@@ -105,10 +105,10 @@ namespace Monoworks::RHI
 
 		if (m_PhysicalDevice == VK_NULL_HANDLE)
 		{
-			MW_ERROR("Failed to find a Suitable Physical Device.");
+			MW_ASSERT(false, "Failed to find a Suitable Physical Device.");
 		}
 
-		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties);
+		vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_Properties); //  <-- hier
 		MW_INFO("Physical Device: {}", m_Properties.deviceName);
 	}
 
@@ -228,9 +228,9 @@ namespace Monoworks::RHI
 
 	bool CVulkanDevice::IsDeviceSuitable(const VkPhysicalDevice* pPhysDevice) noexcept
 	{
-		QueueFamilyIndices indices = FindQueueFamilies(pPhysDevice);
+		QueueFamilyIndices indices = FindQueueFamilies( pPhysDevice );
 
-		bool extensionsSupported = CheckDeviceExtensionSupport(pPhysDevice);
+		bool extensionsSupported = CheckDeviceExtensionSupport( pPhysDevice );
 
 		VkPhysicalDeviceFeatures supportedFeatures;
 		vkGetPhysicalDeviceFeatures(*pPhysDevice, &supportedFeatures);
@@ -244,9 +244,19 @@ namespace Monoworks::RHI
 
 		vkGetPhysicalDeviceFeatures2(*pPhysDevice, &features2);
 
-		return	indices.GraphicsFamilyHasValue	&&
-				indices.ComputeFamilyHasValue	&&
-				indices.TransferFamilyHasValue	&&
+		if ( CApplication::GetCreateInfos()->UseSwapchain ) 
+		{
+			return	indices.GraphicsFamilyHasValue &&
+				indices.ComputeFamilyHasValue &&
+				indices.TransferFamilyHasValue &&
+				indices.PresentFamilyHasValue &&
+				extensionsSupported &&
+				supportedFeatures.samplerAnisotropy;
+		}
+
+		return	indices.GraphicsFamilyHasValue &&
+			indices.ComputeFamilyHasValue &&
+			indices.TransferFamilyHasValue &&
 			extensionsSupported &&
 			supportedFeatures.samplerAnisotropy;
 	}
@@ -254,7 +264,7 @@ namespace Monoworks::RHI
 	QueueFamilyIndices CVulkanDevice::FindQueueFamilies(const VkPhysicalDevice* pPhysDevice) noexcept
 	{
 		MW_PROFILE_FUNC;
-		QueueFamilyIndices indices;
+		QueueFamilyIndices indices{};
 
 		u32 queueFamilyCount = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties( *pPhysDevice, &queueFamilyCount, nullptr );
@@ -281,7 +291,7 @@ namespace Monoworks::RHI
 				indices.TransferFamilyHasValue = true;
 			}
 
-			if ( CApplication::GetCreateInfos()->UseSwapchain && CVulkanContext::GetPresenter()->GetMedium() == MW_PRESENTATION_MEDIUM_VULKAN_SDL )
+			if ( CApplication::GetCreateInfos()->UseSwapchain && CApplication::GetCreateInfos()->pPresenter->GetMedium() == MW_PRESENTATION_MEDIUM_VULKAN_SDL )
 			{
 				auto presenter = ( CVulkanSDLPresenter* )CVulkanContext::GetPresenter();
 				VkBool32 presentSupport = false;
@@ -454,7 +464,7 @@ namespace Monoworks::RHI
 
 	}
 
-	NODISCARD SwapChainSupportDetails CVulkanDevice::QuerySwapChainSupport( const VkPhysicalDevice* pPhysDevice, VkSurfaceKHR* pSurface )
+	NODISCARD SwapChainSupportDetails CVulkanDevice::QuerySwapChainSupport( VkPhysicalDevice pPhysDevice, VkSurfaceKHR pSurface )
 	{
 		MW_PROFILE_FUNC;
 
@@ -463,27 +473,33 @@ namespace Monoworks::RHI
 			MW_ERROR("Illegal function call: Unable to queury swapchain support. UseSwapchain is false");
 		}
 
+
 		SwapChainSupportDetails details;
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR( *pPhysDevice, *pSurface, &details.Capabilities );
+
+		MW_INFO( "sizeof(VkSurfaceCapabilitiesKHR) = {}", sizeof( VkSurfaceCapabilitiesKHR ) );
+		MW_INFO( "pPhysDevice stack address = {}", ( void* )&pPhysDevice );
+		MW_INFO( "details.Capabilities address = {}", ( void* )&details.Capabilities );
+
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR( pPhysDevice, pSurface, &details.Capabilities );  
 
 		u32 formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR( *pPhysDevice, *pSurface, &formatCount, nullptr);
+		vkGetPhysicalDeviceSurfaceFormatsKHR( pPhysDevice, pSurface, &formatCount, nullptr);
 
 		if ( formatCount != 0 )
 		{
 			details.Formats.resize( formatCount );
-			vkGetPhysicalDeviceSurfaceFormatsKHR( *pPhysDevice, *pSurface, &formatCount, details.Formats.data() );
+			vkGetPhysicalDeviceSurfaceFormatsKHR( pPhysDevice, pSurface, &formatCount, details.Formats.data() );
 		}
 
 		u32 presentModeCount;
-		vkGetPhysicalDeviceSurfacePresentModesKHR( *pPhysDevice, *pSurface, &presentModeCount, nullptr );
+		vkGetPhysicalDeviceSurfacePresentModesKHR( pPhysDevice, pSurface, &presentModeCount, nullptr );
 
 		if ( presentModeCount != 0 )
 		{
 			details.PresentModes.resize( presentModeCount );
 			vkGetPhysicalDeviceSurfacePresentModesKHR(
-				*pPhysDevice,
-				*pSurface,
+				pPhysDevice,
+				pSurface,
 				&presentModeCount,
 				details.PresentModes.data() );
 		}

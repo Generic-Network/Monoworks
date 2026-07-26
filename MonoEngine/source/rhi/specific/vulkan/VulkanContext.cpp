@@ -41,7 +41,7 @@ namespace Monoworks::RHI
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-		void* pUserData)
+		void* pUserData )
 	{
 		MW_PROFILE_FUNC;
 
@@ -59,29 +59,51 @@ namespace Monoworks::RHI
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
 			MW_ERROR("Vulkan: {}", pCallbackData->pMessage);
 			break;
+		default:
+			MW_ERROR( "Vulkan {}", pCallbackData->pMessage );
 		}
 
 		return VK_FALSE;
 	}
 
+	static SVersion GetVulkanVersion( u32 vulkanVersion = MW_VK_VERSION )
+	{
+		SVersion temp {};
+
+		temp.Major = static_cast< uint8_t >((vulkanVersion >> 22U) & 0x7FU);
+						
+		temp.Minor = static_cast< uint8_t >((vulkanVersion >> 12U) & 0x3FFU);
+	
+		temp.Patch = static_cast< uint16_t >(vulkanVersion & 0xFFFU);
+
+		return temp;
+	}
+
 	void CVulkanContext::Init()
 	{
 		MW_PROFILE_FUNC;
-		MW_INFO("Initialize CVulkanContext");
+		MW_INFO( "Initialize CVulkanContext" );
+
+		auto v = GetVulkanVersion();
+		MW_INFO( "Vulkan Version {}.{}.{}", v.Major, v.Minor, v.Patch );
 
 		MW_VK_CHECK(volkInitialize(), "Failed to Initialize Volk");
 
 		CreateInstance();
 
 		volkLoadInstance(m_Instance);
-		
+
 		SetupDebugMessenger();
-		m_Device.CreatePhysicalDevice(&m_Instance);
-		
 		m_Presenter = CApplication::GetCreateInfos()->pPresenter;
 
+		// Todo: somehow decide which presenter to use 
+		
+		m_Device.CreatePhysicalDevice(&m_Instance);
+		
 		SVulkanSDLPresentationInitializationInfo presentationInfo;
 		presentationInfo.pInstance = &m_Instance;
+		presentationInfo.pDevice = m_Device.GetDevice();
+		presentationInfo.pPhysDevice = m_Device.GetPhysicalDevice();
 		presentationInfo.pVulkanDevice = &m_Device;
 		m_Presenter->Init( &presentationInfo );
 
@@ -90,6 +112,8 @@ namespace Monoworks::RHI
 
 		SVulkanSDLPresentationInitialization2Info presentationInfo2;
 		presentationInfo2.pVulkanDevice = &m_Device;
+		presentationInfo2.pDevice = m_Device.GetDevice();
+		presentationInfo2.pPhysDevice = *m_Device.GetPhysicalDevice(); 
 		m_Presenter->Init2( &presentationInfo2 );
 
 		VmaAllocatorCreateInfo allocatorCreateInfo{};
@@ -112,11 +136,11 @@ namespace Monoworks::RHI
 
 
 #ifdef MW_PROFILING
-		VmaTotalStatistics stats;
-		vmaCalculateStatistics(m_Allocator, &stats);
 
-		CEventManager::Subscribe(MW_EVENT_APP_FRAME, [&] (SEvent& event )
+		CEventManager::Subscribe(MW_EVENT_APP_FRAME, +[] (SEvent& event )
 			{
+				VmaTotalStatistics stats;
+				vmaCalculateStatistics( m_Allocator, &stats );
 				MW_PROFILE_PLOT("VRAM Total Allocated", (s64)stats.total.statistics.blockBytes);
 				MW_PROFILE_PLOT("VRAM Usage", (s64)stats.total.statistics.allocationBytes);
 				MW_PROFILE_PLOT("Total GPU Allocations", (s64)stats.total.statistics.allocationCount);
@@ -130,8 +154,6 @@ namespace Monoworks::RHI
 		m_ResouceUploader.End();
 
 #endif
-
-
 	}
 
 	static inline bool CheckValidationLayerSupport( const std::vector<const char*>& validationLayers )
@@ -264,7 +286,7 @@ namespace Monoworks::RHI
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 		debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
 		debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
 			VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
 			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
@@ -298,10 +320,10 @@ namespace Monoworks::RHI
 		}
 
 #ifdef MW_PLATFORM_OSX
-		extensions.push_back("VK_KHR_portability_enumeration");
+		extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
 
-		requiredExtensions.push_back("VK_KHR_get_physical_device_properties2");
+		requiredExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 
 		if (m_EnableValidationLayers)
 		{

@@ -23,25 +23,23 @@ namespace Monoworks::RHI
 	void CVulkanSDLPresenter::Init( const IPresentationInitializationInfo* pInfo ) NOEXCEPT 
 	{
 		MW_PROFILE_FUNC;
-		MW_INFO( "Initializa CVulkanSDLPresenter" );
+		MW_INFO( "Initialize CVulkanSDLPresenter" );
 
 		MW_ASSERT(pInfo->Medium == MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium");
 
 		auto info = ( SVulkanSDLPresentationInitializationInfo* )pInfo;
-
-		VkPhysicalDevice physicalDevice = *info->pVulkanDevice->GetPhysicalDevice();
-
+		
 		u32 queueCount;
-		vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, &queueCount, nullptr );
+		vkGetPhysicalDeviceQueueFamilyProperties( *info->pPhysDevice, &queueCount, nullptr );
 		MW_ASSERT( queueCount >= 1, "No queue families found" );
 
 		std::vector<VkQueueFamilyProperties> queueProps( queueCount );
-		vkGetPhysicalDeviceQueueFamilyProperties( physicalDevice, &queueCount, queueProps.data() );
+		vkGetPhysicalDeviceQueueFamilyProperties( *info->pPhysDevice, &queueCount, queueProps.data() );
 
 		std::vector<VkBool32> supportsPresent( queueCount );
 		for ( uint32_t i = 0; i < queueCount; i++ )
 		{
-			vkGetPhysicalDeviceSurfaceSupportKHR( physicalDevice, i, m_Surface, &supportsPresent[i] );
+			vkGetPhysicalDeviceSurfaceSupportKHR( *info->pPhysDevice, i, m_Surface, &supportsPresent[i] );
 		}
 
 		u32 graphicsQueueNodeIndex = UINT32_MAX;
@@ -83,11 +81,11 @@ namespace Monoworks::RHI
 		m_QueueNodeIndex = graphicsQueueNodeIndex;
 
 		uint32_t formatCount;
-		vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice, m_Surface, &formatCount, nullptr );
+		vkGetPhysicalDeviceSurfaceFormatsKHR( *info->pPhysDevice, m_Surface, &formatCount, nullptr );
 		MW_ASSERT( formatCount > 0, "No surface formats found" );
 
 		std::vector<VkSurfaceFormatKHR> surfaceFormats( formatCount );
-		vkGetPhysicalDeviceSurfaceFormatsKHR( physicalDevice, m_Surface, &formatCount, surfaceFormats.data() );
+		vkGetPhysicalDeviceSurfaceFormatsKHR( *info->pPhysDevice, m_Surface, &formatCount, surfaceFormats.data() );
 
 		if ( ( formatCount == 1 ) && ( surfaceFormats[0].format == VK_FORMAT_UNDEFINED ) )
 		{
@@ -113,7 +111,20 @@ namespace Monoworks::RHI
 				m_ColorFormat = surfaceFormats[0].format;
 				m_ColorSpace = surfaceFormats[0].colorSpace;
 			}
-		}
+
+			SVulkanSDLPresentationSurfaceCreationInfo surfaceInfo {};
+			surfaceInfo.pInstance = info->pInstance;
+			CreateSurface( &surfaceInfo );
+		}		
+	}
+
+	void CVulkanSDLPresenter::CreateSurface( const IPresentationSurfaceCreationInfo* pInfo ) NOEXCEPT
+	{
+		MW_PROFILE_FUNC;
+		
+		MW_ASSERT( pInfo->Medium == MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
+
+		auto info = ( SVulkanSDLPresentationSurfaceCreationInfo* )pInfo;
 
 		MW_INFO( "Create Surface" );
 
@@ -121,19 +132,17 @@ namespace Monoworks::RHI
 		{
 			MW_ERROR( "Failed to create window surface: {}", SDL_GetError() );
 		}
-		
 	}
-
 
 	void CVulkanSDLPresenter::Init2( const IPresentationInitialization2Info* pInfo ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 
-		MW_ASSERT( pInfo->Medium != MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
+		MW_ASSERT( pInfo->Medium == MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
 
-		auto info = ( SVulkanSDLPresentationInitializationInfo* )pInfo;
+		auto info = ( SVulkanSDLPresentationInitialization2Info* )pInfo;
 
-		SwapChainSupportDetails swapChainSupport = info->pVulkanDevice->QuerySwapChainSupport(info->pVulkanDevice->GetPhysicalDevice(), &m_Surface);
+		SwapChainSupportDetails swapChainSupport = info->pVulkanDevice->QuerySwapChainSupport(info->pPhysDevice, m_Surface);
 
 		VkSurfaceFormatKHR surfaceFormat;
 		
@@ -246,7 +255,7 @@ namespace Monoworks::RHI
 		std::vector<VkImage> images( imageCount );
 		vkGetSwapchainImagesKHR( *info->pVulkanDevice->GetDevice(), m_Swapchain, &imageCount, images.data() );
 
-		for ( u32 i; i < imageCount; i++ )
+		for ( u32 i{}; i < imageCount; i++ )
 		{
 			// mega freaky unsafe casting action
 			const auto& texture = m_SwapchainImages[i];
