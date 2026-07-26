@@ -55,10 +55,10 @@ namespace Monoworks
 		cfg.Flush();
 
 		SWindowCreateInfos windowInfos{};
-		windowInfos.GraphicsAPI = (EGraphicsAPI)cfg.Get<u32>("Rendering", "GAPI");;
+		windowInfos.GraphicsAPI = MW_GAPI_VULKAN;
 		windowInfos.WindowTitle = cfg.Get("Runtime", "Title");
 		windowInfos.Resizable = cfg.Get<bool>("Rendering", "Resizable");
-		windowInfos.WindowExtent = { cfg.Get<u32>("Rendering", "Default Height"), cfg.Get<u32>("Rendering", "Default Width") };
+		windowInfos.WindowExtent = { cfg.Get<u32>("Rendering", "Default Width"), cfg.Get<u32>("Rendering", "Default Height") };
 
 		m_pWindow = Ref<CWindow>::Create(&windowInfos);
 		m_pPresenter = Ref<RHI::CVulkanSDLPresenter>::Create( windowInfos.WindowExtent, true, ( SDL_Window* )m_pWindow->GetNative() );

@@ -18,6 +18,10 @@ namespace Monoworks::RHI
 		CEventManager::Subscribe( MW_EVENT_WINDOW_RESIZE, [this]( SEvent& event ) { return this->OnResize( event ); } );
 
 		m_PresentationMedium = MW_PRESENTATION_MEDIUM_VULKAN_SDL;
+
+		m_SwapchainExtent = swapchainExtent;
+
+		SDL_SetWindowSize( window, m_SwapchainExtent.Width, m_SwapchainExtent.Height );
 	}
 
 	void CVulkanSDLPresenter::Init( const IPresentationInitializationInfo* pInfo ) NOEXCEPT 
@@ -160,7 +164,7 @@ namespace Monoworks::RHI
 		VkPresentModeKHR presentMode;
 		for (const auto& availablePresentMode : swapChainSupport.PresentModes)
 		{
-			if ( availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR && m_VSync )
+			if ( availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR && !m_VSync )
 			{
 				MW_INFO( "Present mode: Mailbox" );
 				presentMode = availablePresentMode;
@@ -170,25 +174,30 @@ namespace Monoworks::RHI
 			presentMode = VK_PRESENT_MODE_FIFO_KHR;
 			break;
 		}
-
+		
 		VkExtent2D extent;
+		
 		if ( swapChainSupport.Capabilities.currentExtent.width != UINT32_MAX )
 		{
 			extent = swapChainSupport.Capabilities.currentExtent;
 		}
 		else
 		{
-			VkExtent2D actualExtent = { m_SwapchainExtent.Width, m_SwapchainExtent.Height };
-			actualExtent.width = std::max(
-				swapChainSupport.Capabilities.minImageExtent.width,
-				std::min( swapChainSupport.Capabilities.maxImageExtent.width, actualExtent.width ) );
-			actualExtent.height = std::max(
-				swapChainSupport.Capabilities.minImageExtent.height,
-				std::min( swapChainSupport.Capabilities.maxImageExtent.height, actualExtent.height ) );
+			const auto& capabilities = swapChainSupport.Capabilities;
 
-			extent = actualExtent;
+			extent = {
+				.width = std::clamp(
+					m_SwapchainExtent.Width,
+					capabilities.minImageExtent.width,
+					capabilities.maxImageExtent.width
+				),
+				.height = std::clamp(
+					m_SwapchainExtent.Height,
+					capabilities.minImageExtent.height,
+					capabilities.maxImageExtent.height
+				)
+			};
 		}
-
 
 		u32 imageCount = swapChainSupport.Capabilities.minImageCount + 1;
 		if ( swapChainSupport.Capabilities.maxImageCount > 0 &&
