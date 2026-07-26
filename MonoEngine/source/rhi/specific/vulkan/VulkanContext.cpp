@@ -97,6 +97,10 @@ namespace Monoworks::RHI
 		m_Presenter = CApplication::GetCreateInfos()->pPresenter;
 
 		// Todo: somehow decide which presenter to use 
+
+		SVulkanSDLPresentationSurfaceCreationInfo surfaceInfo{};
+		surfaceInfo.pInstance = &m_Instance;
+		m_Presenter->CreateSurface( &surfaceInfo );
 		
 		m_Device.CreatePhysicalDevice(&m_Instance);
 		

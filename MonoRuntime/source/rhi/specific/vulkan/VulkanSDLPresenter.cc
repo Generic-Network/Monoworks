@@ -115,10 +115,6 @@ namespace Monoworks::RHI
 				m_ColorFormat = surfaceFormats[0].format;
 				m_ColorSpace = surfaceFormats[0].colorSpace;
 			}
-
-			SVulkanSDLPresentationSurfaceCreationInfo surfaceInfo {};
-			surfaceInfo.pInstance = info->pInstance;
-			CreateSurface( &surfaceInfo );
 		}		
 	}
 
