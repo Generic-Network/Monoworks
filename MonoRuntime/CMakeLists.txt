@@ -11,7 +11,7 @@ endif()
 target_link_libraries(MonoRuntime PRIVATE MonoEngine SDL3::SDL3 Tracy::TracyClient)
 
 
-target_include_directories(MonoRuntime PRIVATE "source/" "specific/")
+target_include_directories(MonoRuntime PRIVATE "source/" "specific/" "extern/sdl/include")
 
 if (WIN32)
     target_compile_definitions(MonoRuntime PRIVATE VT_PLATFORM_WINDOWS)
