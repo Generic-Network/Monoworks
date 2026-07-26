@@ -244,6 +244,7 @@ namespace Monoworks::RHI
 			textureInfo.Extent = { extent.width, extent.height, 1 };
 			textureInfo.GenerateImage = false;
 			textureInfo.GenerateSampler = false;
+			textureInfo.GenerateImageView = false;
 			textureInfo.ImageLayout = MW_IMAGE_LAYOUT_UNDEFINED;
 			textureInfo.Usage = MW_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			textureInfo.AspectMask = MW_IMAGE_ASPECT_COLOR_BIT;
@@ -257,10 +258,37 @@ namespace Monoworks::RHI
 
 		for ( u32 i{}; i < imageCount; i++ )
 		{
+			STextureCreateInfo textureInfo {};
+			textureInfo.Format = ( EImageFormat )surfaceFormat.format;
+			textureInfo.Extent = { extent.width, extent.height, 1 };
+			textureInfo.GenerateImage = false;
+			textureInfo.GenerateSampler = false;
+			textureInfo.GenerateImageView = false;
+			textureInfo.ImageLayout = MW_IMAGE_LAYOUT_UNDEFINED;
+			textureInfo.Usage = MW_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			textureInfo.AspectMask = MW_IMAGE_ASPECT_COLOR_BIT;
+
+			m_SwapchainImages[i] = ITexture2D::Create( &textureInfo );
+
 			// mega freaky unsafe casting action
 			const auto& texture = m_SwapchainImages[i];
 			auto vulkanTexture = texture.As<CVulkanTexture2D>();
 			vulkanTexture->SetImage( &images[i] );
+			
+			VkImageViewCreateInfo viewInfo {};
+			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			viewInfo.image = *vulkanTexture->GetImage();
+			viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			viewInfo.format = m_ColorFormat;
+			viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			viewInfo.subresourceRange.baseMipLevel = 0;
+			viewInfo.subresourceRange.levelCount = 1;
+			viewInfo.subresourceRange.baseArrayLayer = 0;
+			viewInfo.subresourceRange.layerCount = 1;
+
+			MW_VK_CHECK( vkCreateImageView( *info->pDevice, &viewInfo, nullptr, vulkanTexture->GetImageView() ), "Failed to create Image View" );
+
+			
 		}
 
 	}
