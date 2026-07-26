@@ -271,7 +271,7 @@ namespace Monoworks::RHI
 			m_SwapchainImages[i] = ITexture2D::Create( &textureInfo );
 
 			// mega freaky unsafe casting action
-			const auto& texture = m_SwapchainImages[i];
+			const auto texture = m_SwapchainImages[i];
 			auto vulkanTexture = texture.As<CVulkanTexture2D>();
 			vulkanTexture->SetImage( &images[i] );
 			

@@ -19,6 +19,9 @@ namespace Monoworks::RHI
 
 		~CVulkanTexture2D() NOEXCEPT;
 
+		CVulkanTexture2D( const CVulkanTexture2D& ) = delete;
+		CVulkanTexture2D& operator=( const CVulkanTexture2D& ) = delete;
+
 		NODISCARD u32 ReadPixel( s32 x, s32 y ) NOEXCEPT override;
 
 		NODISCARD u32 GetWidth() const NOEXCEPT override { return m_ImageExtent.Width; };
@@ -47,13 +50,13 @@ namespace Monoworks::RHI
 
 		SExtent3D m_ImageExtent;
 
-		VkImage m_Image;
-		VkImageView m_ImageView;
-		VkSampler m_Sampler;
-		VmaAllocation m_ImageAllocation;
+		VkImage m_Image = VK_NULL_HANDLE;
+		VkImageView m_ImageView = VK_NULL_HANDLE;
+		VkSampler m_Sampler = VK_NULL_HANDLE;
+		VmaAllocation m_ImageAllocation = VK_NULL_HANDLE;
 
-		VkBuffer m_StagingBuffer;
-		VmaAllocation m_StagingBufferAllocation;
+		VkBuffer m_StagingBuffer = VK_NULL_HANDLE;
+		VmaAllocation m_StagingBufferAllocation = VK_NULL_HANDLE;
 		VkFence m_Fence;
 
 		u64 m_StagingBufferSize;

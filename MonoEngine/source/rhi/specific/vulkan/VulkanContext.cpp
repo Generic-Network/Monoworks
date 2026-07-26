@@ -110,13 +110,7 @@ namespace Monoworks::RHI
 		m_Device.Init(&m_Instance);
 		volkLoadDevice(*m_Device.GetDevice());
 
-		SVulkanSDLPresentationInitialization2Info presentationInfo2;
-		presentationInfo2.pVulkanDevice = &m_Device;
-		presentationInfo2.pDevice = m_Device.GetDevice();
-		presentationInfo2.pPhysDevice = *m_Device.GetPhysicalDevice(); 
-		m_Presenter->Init2( &presentationInfo2 );
-
-		VmaAllocatorCreateInfo allocatorCreateInfo{};
+		VmaAllocatorCreateInfo allocatorCreateInfo {};
 		allocatorCreateInfo.physicalDevice = *m_Device.GetPhysicalDevice();
 		allocatorCreateInfo.device = *m_Device.GetDevice();
 		allocatorCreateInfo.instance = m_Instance;
@@ -126,11 +120,18 @@ namespace Monoworks::RHI
 			| VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
 
 		VmaVulkanFunctions vulkanFunctions;
-		MW_VK_CHECK(vmaImportVulkanFunctionsFromVolk(&allocatorCreateInfo, &vulkanFunctions), "Failed to import vulkan functions from volk for VMA");
+		MW_VK_CHECK( vmaImportVulkanFunctionsFromVolk( &allocatorCreateInfo, &vulkanFunctions ), "Failed to import vulkan functions from volk for VMA" );
 
 		allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
 
-		MW_VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &m_Allocator), "Failed to create VMA Allocator");
+		MW_VK_CHECK( vmaCreateAllocator( &allocatorCreateInfo, &m_Allocator ), "Failed to create VMA Allocator" );
+
+
+		SVulkanSDLPresentationInitialization2Info presentationInfo2;
+		presentationInfo2.pVulkanDevice = &m_Device;
+		presentationInfo2.pDevice = m_Device.GetDevice();
+		presentationInfo2.pPhysDevice = *m_Device.GetPhysicalDevice(); 
+		m_Presenter->Init2( &presentationInfo2 );
 
 		m_ResouceUploader.Init(); 
 
