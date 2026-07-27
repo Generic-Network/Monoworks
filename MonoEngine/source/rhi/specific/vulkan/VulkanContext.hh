@@ -24,6 +24,7 @@ namespace Monoworks::RHI
 		void Shutdown() override;
 
 		NODISCARD static VkInstance* GetInstance() NOEXCEPT { return &m_Instance; }
+		NODISCARD static VkPipelineCache* GetPipelineCache() NOEXCEPT { return &m_PipelineCache; }
 
 		NODISCARD static CVulkanDevice* GetDevice() NOEXCEPT { return &m_Device; }
 		NODISCARD static CVulkanResourceUploader* GetUploader() NOEXCEPT { return &m_ResouceUploader; }
@@ -45,9 +46,13 @@ namespace Monoworks::RHI
 
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 		static VkInstance m_Instance;
+		static VkPipelineCache m_PipelineCache;
+
 		static VmaAllocator m_Allocator;
+		
 		static CVulkanDevice m_Device;
 		static CVulkanResourceUploader m_ResouceUploader;
+		
 		static IPresenter* m_Presenter;
 
 		const std::vector<const char*> m_ValidationLayers = { "VK_LAYER_KHRONOS_validation" };

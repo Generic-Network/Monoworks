@@ -48,7 +48,7 @@ namespace Monoworks::RHI
 		MW_FORMAT_R32_SFLOAT = 100,
 	};
 
-	using EImageUsageFlags = u32; // Bitmask, use EImageUsageFlagsBits
+	using EImageUsageFlags = flags_t; // Bitmask, use EImageUsageFlagsBits
 
 	enum EImageUsageFlagsBits
 	{
@@ -138,7 +138,7 @@ namespace Monoworks::RHI
 		MW_IMAGE_LAYOUT_MAX_ENUM = 0x7FFFFFFF
 	};
 
-	using EImageAspectFlags = u32; // Bitmask, use EImageAspectFlagBits
+	using EImageAspectFlags = flags_t; // Bitmask, use EImageAspectFlagBits
 
 	enum EImageAspectFlagBits
 	{
@@ -161,7 +161,7 @@ namespace Monoworks::RHI
 		MW_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 	};
 
-	using EPipelineFlags = u32; // Bitmask, use EPipelineFlagBits
+	using EPipelineFlags = flags_t; // Bitmask, use EPipelineFlagBits
 
 	enum EPipelineFlagBits
 	{

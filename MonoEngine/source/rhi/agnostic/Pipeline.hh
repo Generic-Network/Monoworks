@@ -1,0 +1,68 @@
+#pragma once
+#include <common/Base.hh>
+
+namespace Monoworks::RHI 
+{
+	enum EPrimitiveTopology : u8
+	{
+		MW_PRIMITIVE_TOPOLOGY_UNKOWN, 
+		
+		MW_PRIMITIVE_TOPOLOGY_POINT_LIST,
+		MW_PRIMITIVE_TOPOLOGY_LINE_LIST,
+		MW_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+		
+		MW_PRIMITIVE_TOPOLOGY_COUNT
+	};
+
+	enum ECullMode
+	{
+		MW_CULL_MODE_NONE,
+		MW_CULL_MODE_BACK,
+		MW_CULL_MODE_FRONT,
+		MW_CULL_MODE_FRONT_AND_BACK
+	};
+
+	enum EShaderStage : u8
+	{
+		MW_SHADER_STAGE_UNKNOWN,
+		
+		MW_SHADER_STAGE_VERTEX, 
+		MW_SHADER_STAGE_TESSELATION_CONTROL, 
+		MW_SHADER_STAGE_TESSELATION_EVALUATION, 
+		MW_SHADER_STAGE_GEOMETRY,
+		MW_SHADER_STAGE_FRAGMENT,
+
+		MW_SHADER_STAGE_COMPUTE, 
+
+		MW_SHADER_STAGE_COUNT
+	};
+
+	enum EPipelineFlagBits 
+	{
+		MW_PIPELINE_CREATION_FLAGS_NONE_BIT = 0x00'00'00'00,
+		MW_PIPELINE_CREATION_FLAGS_TESSELATION_CONTROL_SHADER_BIT = 0x00'00'00'01,
+		MW_PIPELINE_CREATION_FLAGS_TESSELATION_EVALULATION_SHADER_BIT = 0x00'00'00'02,
+		MW_PIPELINE_CREATION_FLAGS_GEOMETRY_SHADER_BIT = 0x00'00'00'04,
+		MW_PIPELINE_CREATION_FLAGS_DEFFERED_INITIALIZATION_BIT = 0x00'00'00'08
+	};
+
+	using EPipelineFlags = flags_t;
+
+	struct SShaderByteCode
+	{
+		const void* pCode;
+		size_t Size;
+	};
+
+	struct SShaderObject 
+	{
+		SShaderByteCode Code;
+		const char* pEntrypoint = "main";
+		EShaderStage ShaderStage;
+	};
+
+	class IGraphicsPipeline 
+	{
+
+	};
+}

@@ -2,18 +2,18 @@
  * @defgroup Common Common
  * @brief Common Components shared between every Application
  */
- 
 
-/**
- * @file Base.hh
- * @author Theo Wimber (theowimber@abeams.app)
- * @brief Common definitions for the entire engine
- * @version 0.1
- * @date 2026-07-03
- * @ingroup Common
- * @copyright Copyright (c) 2026
- * 
- */
+
+ /**
+  * @file Base.hh
+  * @author Theo Wimber (theowimber@abeams.app)
+  * @brief Common definitions for the entire engine
+  * @version 0.1
+  * @date 2026-07-03
+  * @ingroup Common
+  * @copyright Copyright (c) 2026
+  *
+  */
 
 #pragma once
 #include <cstdint>
@@ -50,8 +50,8 @@
 #define MW_ENABLE_ASSERTS 1
 #ifdef	MW_ENABLE_ASSERTS
 
- // Note [21.02.26, Theo]: Do not use VT_CORE_ASSERT / VT_ASSERT when a function/check also needs to be run in a dist
- // build. e.g. vkCreatePipeline. For Vulkan Functions use VT_VK_CHECK (Core.h)
+  // Note [21.02.26, Theo]: Do not use VT_CORE_ASSERT / VT_ASSERT when a function/check also needs to be run in a dist
+  // build. e.g. vkCreatePipeline. For Vulkan Functions use VT_VK_CHECK (Core.h)
 #define MW_ASSERT(condition, ...) { if(!(condition)) { MW_ERROR(__VA_ARGS__); MW_DEBUG_BREAK; } }
 #else
 #define MW_CORE_ASSERT(condition, ...)
@@ -113,7 +113,7 @@ using u16 = uint16_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
 
-using s8  = int8_t;
+using s8 = int8_t;
 using s16 = int16_t;
 using s32 = int32_t;
 using s64 = int64_t;
@@ -128,9 +128,12 @@ using cvar_t = Monoworks::SCVar;
 
 using path_t = std::filesystem::path;
 
+using flags_t = u32;
+
 namespace Monoworks
 {
 	constexpr u32 MaxFramesInFlight = 3;
+
 
 	struct SVersion
 	{
@@ -141,27 +144,27 @@ namespace Monoworks
 
 	using SAppVersion = SVersion;
 
-    enum EGraphicsAPI
-    {
-        MW_GAPI_NONE = 0x0,
-        MW_GAPI_VULKAN = 0x10000000
-    };
+	enum EGraphicsAPI
+	{
+		MW_GAPI_NONE = 0x0,
+		MW_GAPI_VULKAN = 0x10000000
+	};
 
-    /**
-     * @brief Two-Dimensional Extent Structure
-     */
-    struct SExtent2D
-    {
+	/**
+	 * @brief Two-Dimensional Extent Structure
+	 */
+	struct SExtent2D
+	{
 		/**
 		 * @brief Width component of the Two-Dimensional Extent.
 		 */
 		u32 Width = 0;
 
-        /**
-         * @brief Height component of the Two-Dimensional Extent.
-         */
-        u32 Height = 0;
-    };
+		/**
+		 * @brief Height component of the Two-Dimensional Extent.
+		 */
+		u32 Height = 0;
+	};
 
 	/**
 	 * @brief Three-Dimensional Extent Structure.
@@ -184,29 +187,29 @@ namespace Monoworks
 		u32 Depth = 0;
 	};
 
-    /*
-       Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
+	/*
+	   Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
 
-        This software is provided 'as-is', without any express or implied
-        warranty.  In no event will the authors be held liable for any damages
-        arising from the use of this software.
+		This software is provided 'as-is', without any express or implied
+		warranty.  In no event will the authors be held liable for any damages
+		arising from the use of this software.
 
-        Permission is granted to anyone to use this software for any purpose,
-        including commercial applications, and to alter it and redistribute it
-        freely, subject to the following restrictions:
+		Permission is granted to anyone to use this software for any purpose,
+		including commercial applications, and to alter it and redistribute it
+		freely, subject to the following restrictions:
 
-        1. The origin of this software must not be misrepresented; you must not
-           claim that you wrote the original software. If you use this software
-           in a product, an acknowledgment in the product documentation would be
-           appreciated but is not required.
-        2. Altered source versions must be plainly marked as such, and must not be
-           misrepresented as being the original software.
-        3. This notice may not be removed or altered from any source distribution.
+		1. The origin of this software must not be misrepresented; you must not
+		   claim that you wrote the original software. If you use this software
+		   in a product, an acknowledgment in the product documentation would be
+		   appreciated but is not required.
+		2. Altered source versions must be plainly marked as such, and must not be
+		   misrepresented as being the original software.
+		3. This notice may not be removed or altered from any source distribution.
 
-        Modified Scancode implementation by libsdl-org
-    */
-    enum Scancode 
-    {
+		Modified Scancode implementation by libsdl-org
+	*/
+	enum Scancode
+	{
 		MW_SCANCODE_UNKNOWN = 0,
 		MW_SCANCODE_A = 4,
 		MW_SCANCODE_B = 5,

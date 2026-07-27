@@ -109,7 +109,7 @@ namespace Monoworks::RHI
 		u64 m_Stride;
 	};
 
-	typedef CBufferLayout VertexLayout;
+	typedef CBufferLayout CVertexLayout;
 
 	class IVertexBuffer 
 	{

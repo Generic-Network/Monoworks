@@ -83,7 +83,7 @@ namespace Monoworks::RHI
 			u32 layerCount
 		) NOEXCEPT;
 
-		const VkDevice* GetDevice() const noexcept { return &m_Device; };
+		VkDevice* GetDevice() noexcept { return &m_Device; };
 		const VkPhysicalDevice* GetPhysicalDevice() const noexcept { return &m_PhysicalDevice; }
 
 		NODISCARD const VkCommandPool* GetGraphicsCommandPool() const noexcept { return &m_GraphicsCommandPool; }
