@@ -121,10 +121,10 @@ namespace Monoworks::RHI
 
 		virtual void Upload(VkCommandBuffer commandBuffer)			NOEXCEPT = 0;
 
-		virtual NODISCARD CBufferLayout*	GetLayout()				NOEXCEPT = 0;
-		virtual NODISCARD VkBuffer*			GetVulkanBuffer()		NOEXCEPT = 0;
+		NODISCARD virtual CBufferLayout*	GetLayout()				NOEXCEPT = 0;
+		NODISCARD virtual VkBuffer*			GetVulkanBuffer()		NOEXCEPT = 0;
 
-		static NODISCARD Ref<IVertexBuffer> Create(void* vertexData, u64 vertexCount, u64 vertexStride, bool autoupload = false) NOEXCEPT;
+		NODISCARD static Ref<IVertexBuffer> Create(void* vertexData, u64 vertexCount, u64 vertexStride, bool autoupload = false) NOEXCEPT;
 	protected:
 		IVertexBuffer() = default;
 	};
