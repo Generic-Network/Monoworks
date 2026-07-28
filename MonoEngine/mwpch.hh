@@ -17,6 +17,7 @@
 #include <vector>
 #include <list>
 #include <unordered_map>
+#include <unordered_set>
 #include <map>
 #include <queue>
 #include <stack>
@@ -26,6 +27,6 @@
 
 // Engine
 #include <common/Math.hh>
-#include <common/Log.h>
+#include <common/Log.hh>
 #include <common/Base.hh>
 #include <common/Memory.hh>

@@ -1,7 +1,7 @@
 #include "EventDispatcher.hh"
 
 #include <common/Base.hh>
-#include <common/Events.h>
+#include <common/Events.hh>
 
 #include <events/EventManager.hh>
 
@@ -11,20 +11,20 @@ namespace Monoworks
 {
 	void CSDLEventDispatcher::Init()
 	{
-		MW_PROFILE_FUNC();
+		MW_PROFILE_FUNC;
 		MW_INFO("Initialize CSDLEventDispatcher");
 	}
 
 
 	void CSDLEventDispatcher::Shutdown()
 	{
-		MW_PROFILE_FUNC();
+		MW_PROFILE_FUNC;
 		MW_INFO("Shutdown CSDLEventDispatcher");
 	}
 
 	void CSDLEventDispatcher::ProcessEvents()
 	{
-		MW_PROFILE_FUNC();
+		MW_PROFILE_FUNC;
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
