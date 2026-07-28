@@ -89,8 +89,9 @@ namespace Monoworks
 	void CApplication::Shutdown() noexcept
 	{
 		MW_PROFILE_FUNC;
+		
+		m_GraphicsContext->Shutdown();
 		free((void*)m_pApplicationCreationInfos.pName);
-
 	}
 
 	void CApplication::Frame()
@@ -111,6 +112,7 @@ namespace Monoworks
 		Events::SAppRender render{};
 		CEventManager::EmitEventNonDeffered(render, MW_EVENT_APP_RENDER);
 
+		std::this_thread::sleep_for( std::chrono::milliseconds( 7 ) );
 
 
 		FrameMark;

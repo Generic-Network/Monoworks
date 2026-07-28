@@ -15,7 +15,7 @@
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 
 #define VMA_IMPLEMENTATION
-#define VMA_VULKAN_VERSION 1004000
+#define VMA_VULKAN_VERSION 1003000
 #include <vk_mem_alloc.h>
 
 #ifdef MW_PROFILING
@@ -35,6 +35,7 @@ namespace Monoworks::RHI
 	 
 	VmaAllocator CVulkanContext::m_Allocator;
 	VkInstance CVulkanContext::m_Instance;
+	VkPipelineCache CVulkanContext::m_PipelineCache;
 	CVulkanResourceUploader CVulkanContext::m_ResouceUploader;
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
@@ -198,6 +199,27 @@ namespace Monoworks::RHI
 	{
 		MW_PROFILE_FUNC;
 		MW_INFO("Shutdown CVulkanContext");
+		
+		// TODO: Allocation Callbacks
+
+		if ( m_PipelineCache )
+		{
+			vkDestroyPipelineCache( *m_Device.GetDevice(), m_PipelineCache, nullptr );
+		}
+
+		if ( m_Allocator )
+		{
+			vmaDestroyAllocator( m_Allocator );
+		}
+
+		m_ResouceUploader.Shutdown();
+		m_Presenter->Shutdown();
+		
+		m_Device.Shutdown();
+		if ( m_Instance )
+		{
+			vkDestroyInstance( m_Instance, nullptr );
+		}
 	}
 
 	void CVulkanContext::CreateInstance() NOEXCEPT

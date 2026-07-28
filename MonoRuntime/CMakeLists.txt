@@ -5,8 +5,22 @@ add_executable(MonoRuntime "source/core/MonoRuntime.hh" "source/core/MonoRuntime
 if(MW_USE_SYSTEM_SDL3)
     find_package(SDL3 REQUIRED CONFIG COMPONENTS SDL3-shared)
 else()
+    set(SDL_TEST OFF CACHE BOOL "" FORCE)
+    set(SDL_SHARED ON CACHE BOOL "" FORCE)
+    set(SDL_STATIC OFF CACHE BOOL "" FORCE)
     add_subdirectory(extern/sdl)
 endif()
+
+target_include_directories(MonoRuntime PRIVATE 
+    "source/" 
+    "specific/"
+)
+
+target_link_libraries(MonoRuntime PRIVATE 
+    MonoEngine 
+    SDL3::SDL3 
+    Tracy::TracyClient
+)
 
 target_link_libraries(MonoRuntime PRIVATE MonoEngine SDL3::SDL3 Tracy::TracyClient)
 

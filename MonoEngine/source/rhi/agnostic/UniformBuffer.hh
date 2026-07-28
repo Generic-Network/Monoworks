@@ -6,7 +6,7 @@ namespace Monoworks::RHI
 	class IUniformBuffer
 	{
 	public:
-		virtual ~IUniformBuffer() NOEXCEPT;
+		virtual ~IUniformBuffer() NOEXCEPT = default;
 
 		virtual void SetData( void* pData, u64 size, u64 offset = 0 ) NOEXCEPT = 0;
 		virtual void Upload( VkCommandBuffer* pCmdBuffer ) NOEXCEPT = 0;

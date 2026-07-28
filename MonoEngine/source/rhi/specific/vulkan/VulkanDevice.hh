@@ -1,7 +1,14 @@
 #pragma once
 #include <common/Base.hh>
 
-#include <volk/volk.h>
+#ifdef MW_PLATFORM_OSX
+#ifndef VK_ENABLE_BETA_EXTENSIONS
+#define VK_ENABLE_BETA_EXTENSIONS
+#endif
+#endif
+
+#include <volk.h>
+
 #include <vk_mem_alloc.h>
 
 namespace Monoworks 
