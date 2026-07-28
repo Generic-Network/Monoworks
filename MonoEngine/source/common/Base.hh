@@ -2,44 +2,119 @@
  * @defgroup Common Common
  * @brief Common Components shared between every Application
  */
- 
 
-/**
- * @file Base.hh
- * @author Theo Wimber (theowimber@abeams.app)
- * @brief Common definitions for the entire engine
- * @version 0.1
- * @date 2026-07-03
- * @ingroup Common
- * @copyright Copyright (c) 2026
- * 
- */
+
+ /**
+  * @file Base.hh
+  * @author Theo Wimber (theowimber@abeams.app)
+  * @brief Common definitions for the entire engine
+  * @version 0.1
+  * @date 2026-07-03
+  * @ingroup Common
+  * @copyright Copyright (c) 2026
+  *
+  */
 
 #pragma once
 #include <cstdint>
-#include <common/Log.h>
+#include <common/Log.hh>
 #include <common/Memory.hh>
 #include <core/CVarManager.hh>
 
-#ifdef MW_PROFILING
-#include <Tracy/Tracy.hpp>
+#include <volk/volk.h>
 
-#define MW_PROFILE_FUNC() ZoneScopedN(__FUNCTION__);
+#define MW_PROFILING 1
+#define MW_VULKAN 1
+
+#define NOEXCEPT noexcept
+#define NODISCARD [[nodiscard]]
+#define MAYBE_UNUSED [[maybe_unused]]
+
+#ifdef	MW_PLATFORM_WINDOWS
+#define MW_DEBUG_BREAK __debugbreak()
+#elif defined(__clang__)
+#define MW_DEBUG_BREAK __builtin_debugtrap()
+#elif defined(__GNUC__)
+#include <csignal>
+#define MW_DEBUG_BREAK std::raise(SIGTRAP);
+#else
+#define MW_DEBUG_BREAK
+#endif
+
+#ifdef MW_DEBUG
+#define MW_ENABLE_ASSERTS
+#define MW_ENABLE_VERIFY
+#endif
+
+#ifdef	MW_ENABLE_ASSERTS
+  // Note [21.02.26, Theo]: Do not use MW_CORE_ASSERT / MW_ASSERT when a function/check also needs to be run in a dist
+  // build. e.g. vkCreatePipeline. For Vulkan Functions use VT_VK_CHECK (Core.h)
+#define MW_ASSERT(condition, ...) { if(!(condition)) { MW_ERROR(__VA_ARGS__); MW_DEBUG_BREAK; } }
+#else
+#define MW_ASSERT(condition, ...)
+#endif
+
+
+#ifdef MW_PROFILING
+#include <tracy/Tracy.hpp>
+
+#ifdef MW_VULKAN
+
+#include <tracy/TracyVulkan.hpp>
+extern TracyVkCtx TracyGraphicsContext;
+extern TracyVkCtx TracyComputeContext;
+extern TracyVkCtx TracyTransferContext;
+
+#define MW_PROFILE_VK_GRAPHICS_ZONE(cmd, name) if(TracyGraphicsContext) { TracyVkZone( TracyGraphicsContext, cmd, name ); }
+#define MW_PROFILE_VK_COMPUTE_ZONE(cmd, name) if(TracyComputeContext) { TracyVkZone( TracyComputeContext, cmd, name ); }
+#define MW_PROFILE_VK_TRANSFER_ZONE(cmd, name) if(TracyTransferContext) { TracyVkZone( TracyTransferContext, cmd, name ); }
+
+#define MW_PROFILE_VK_GRAPHICS_COLLECT(cmd) if(TracyGraphicsContext) { TracyVkCollect( TracyGraphicsContext, cmd ); }
+#define MW_PROFILE_VK_COMPUTE_COLLECT(cmd) if(TracyComputeContext) { TracyVkCollect( TracyComputeContext, cmd ); }
+#define MW_PROFILE_VK_TRANSFER_COLLECT(cmd) if(TracyTransferContext) { TracyVkCollect( TracyTransferContext, cmd ); }
+
+#define MW_PROFILE_VK_CREATE_CTX(physdev, device, queue, cmdbuf) TracyVkContext( physdev, device, queue, cmdbuf );
+#define MW_PROFILE_VK_DESTROY_CTX(ctx) TracyVkDestroy(ctx);
+
+#endif 
+
+
+#define MW_PROFILE_ALLOC(x, y) TracyAlloc(x, y)
+#define MW_PROFILE_ALLOC_N(x, y, z) TracyAllocN(x, y, z)
+
+#define MW_PROFILE_PLOT(x, y) TracyPlot(x, y)
+
+#define MW_PROFILE_FREE(x) TracyFree(x)
+#define MW_PROFILE_FREE_N(x, y) TracyFreeN(x, y)
+
+#define MW_PROFILE_FUNC  ZoneScopedN(__FUNCTION__);
+
 #define MW_PROFILE_FRAME_MARK() FrameMark;
 
 #endif
-using cvar_t = Monoworks::SCVar;
+
+
+#ifdef MW_VULKAN
+#define MW_VK_CHECK(x, err, ...) if (x != VK_SUCCESS) { MW_ASSERT(false, __VA_ARGS__); };
+#define MW_VK_VERSION VK_API_VERSION_1_3
+#endif
+
+#ifdef MW_VULKAN
+#define MW_VK_CHECK( x, ... ) do { const VkResult mwVkRes__ = ( x ); if ( mwVkRes__ != VK_SUCCESS ) { MW_ASSERT( false, __VA_ARGS__ ); } } while ( 0 )
+#define MW_VK_VERSION VK_API_VERSION_1_3
+#endif
 
 #define MW_REG_CVAR(var) Monoworks::CCvarManager::RegisterVariable(var);
 #define MW_SET_CVAR(varName, value) Monoworks::CCvarManager::Set(varName, value);
 #define MW_SET_FLOAT_CVAR(varName, value) Monoworks::CCvarManager::SetValue(varName, value);
+
 
 using u8 = uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
 
-using s8  = int8_t;
+using s8 = int8_t;
 using s16 = int16_t;
 using s32 = int32_t;
 using s64 = int64_t;
@@ -50,55 +125,92 @@ using f64 = double;
 using uptr_t = uintptr_t;
 using byte_t = unsigned char;
 
+using cvar_t = Monoworks::SCVar;
+
+using path_t = std::filesystem::path;
+
+using flags_t = u32;
+
 namespace Monoworks
 {
-
-    enum EGraphicsAPI
-    {
-        MW_GAPI_NONE = 0x0,
-        MW_GAPI_VULKAN = 0x10000000
-    };
-
-    /**
-     * @brief Two-Dimensional Extent Structure
-     */
-    struct SExtent2D
-    {
-        /**
-         * @brief Height component of the Two-Dimensional Extent.
-         */
-        u32 Height = 0;
-
-        /**
-         * @brief Width component of the Two-Dimensional Extent.
-         */
-        u32 Width = 0;
-    };
+	constexpr u32 MaxFramesInFlight = 3;
 
 
-    /*
-       Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
+	struct SVersion
+	{
+		u8 Major;
+		u8 Minor;
+		u16 Patch;
+	};
 
-        This software is provided 'as-is', without any express or implied
-        warranty.  In no event will the authors be held liable for any damages
-        arising from the use of this software.
+	using SAppVersion = SVersion;
 
-        Permission is granted to anyone to use this software for any purpose,
-        including commercial applications, and to alter it and redistribute it
-        freely, subject to the following restrictions:
+	enum EGraphicsAPI
+	{
+		MW_GAPI_NONE = 0x0,
+		MW_GAPI_VULKAN = 0x10000000
+	};
 
-        1. The origin of this software must not be misrepresented; you must not
-           claim that you wrote the original software. If you use this software
-           in a product, an acknowledgment in the product documentation would be
-           appreciated but is not required.
-        2. Altered source versions must be plainly marked as such, and must not be
-           misrepresented as being the original software.
-        3. This notice may not be removed or altered from any source distribution.
+	/**
+	 * @brief Two-Dimensional Extent Structure
+	 */
+	struct SExtent2D
+	{
+		/**
+		 * @brief Width component of the Two-Dimensional Extent.
+		 */
+		u32 Width = 0;
 
-        Modified Scancode implementation by libsdl-org
-    */
-    enum Scancode 
-    {
+		/**
+		 * @brief Height component of the Two-Dimensional Extent.
+		 */
+		u32 Height = 0;
+	};
+
+	/**
+	 * @brief Three-Dimensional Extent Structure.
+	 */
+	struct SExtent3D
+	{
+		/**
+		 * @brief Width component of the Three-Dimensional Extent.
+		 */
+		u32 Width = 0;
+
+		/**
+		 * @brief Height component of the Three-Dimensional Extent.
+		 */
+		u32 Height = 0;
+
+		/**
+		 * @brief Depth component of the Three-Dimensional Extent.
+		 */
+		u32 Depth = 0;
+	};
+
+	/*
+	   Copyright (C) 1997-2026 Sam Lantinga <slouken@libsdl.org>
+
+		This software is provided 'as-is', without any express or implied
+		warranty.  In no event will the authors be held liable for any damages
+		arising from the use of this software.
+
+		Permission is granted to anyone to use this software for any purpose,
+		including commercial applications, and to alter it and redistribute it
+		freely, subject to the following restrictions:
+
+		1. The origin of this software must not be misrepresented; you must not
+		   claim that you wrote the original software. If you use this software
+		   in a product, an acknowledgment in the product documentation would be
+		   appreciated but is not required.
+		2. Altered source versions must be plainly marked as such, and must not be
+		   misrepresented as being the original software.
+		3. This notice may not be removed or altered from any source distribution.
+
+		Modified Scancode implementation by libsdl-org
+	*/
+	enum Scancode
+	{
 		MW_SCANCODE_UNKNOWN = 0,
 		MW_SCANCODE_A = 4,
 		MW_SCANCODE_B = 5,
@@ -357,5 +469,8 @@ namespace Monoworks
 		MW_NOUSE_4_BUTTON,
 		MW_MOUSE_5_BUTTON
 	};
+
+	constexpr SAppVersion MonoworksVersion = { .Major = 1, .Minor = 0, .Patch = 0 };
+	constexpr const char* EngineName = "MonoEngine";
 
 }
