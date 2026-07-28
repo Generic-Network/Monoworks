@@ -1,11 +1,6 @@
 #pragma once
 #include <common/Base.hh>
 
-#ifdef MW_PLATFORM_OSX
-#ifndef VK_ENABLE_BETA_EXTENSIONS
-#define VK_ENABLE_BETA_EXTENSIONS
-#endif
-#endif
 
 #include <volk.h>
 
@@ -147,7 +142,7 @@ namespace Monoworks::RHI
 			VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME, 
 			VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
 #ifdef MW_PLATFORM_OSX
-			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+			"VK_KHR_portabillity_subset"
 #endif
 		};
 
