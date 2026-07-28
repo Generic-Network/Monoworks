@@ -1,7 +1,7 @@
 #include <mwpch.hh>
-#include "VulkanPipeline.hh"
+#include "VulkanGraphicsPipeline.hh"
 
-#include <rhi/agnostic/Pipeline.hh>
+#include <rhi/agnostic/GraphicsPipeline.hh>
 
 #include <rhi/specific/vulkan/VulkanContext.hh>
 
@@ -9,7 +9,7 @@ namespace Monoworks::RHI
 {
 
 
-	CVulkanGraphicsPipeline::CVulkanGraphicsPipeline( const SVulkanPipelineCreationInfo* pInfo ) NOEXCEPT
+	CVulkanGraphicsPipeline::CVulkanGraphicsPipeline( const SPipelineCreationInfo* pInfo ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 
@@ -25,7 +25,7 @@ namespace Monoworks::RHI
 		Shutdown();
 	}
 
-	void CVulkanGraphicsPipeline::Init( const SVulkanPipelineCreationInfo* pInfo ) NOEXCEPT
+	void CVulkanGraphicsPipeline::Init( const SPipelineCreationInfo* pInfo ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		Invalidate( pInfo );
@@ -34,6 +34,11 @@ namespace Monoworks::RHI
 	void CVulkanGraphicsPipeline::Shutdown()
 	{
 		MW_PROFILE_FUNC; 
+
+		auto device = CVulkanContext::GetDevice()->GetDevice();
+
+		vkDestroyPipeline( *device, m_VulkanPipeline, nullptr );
+		vkDestroyPipelineLayout( *device, m_VulkanPipelineLayout, nullptr );
 	}
 
 	static VkFormat ShaderDataTypeToVulkanFormat( EShaderDataType type )
@@ -181,9 +186,11 @@ namespace Monoworks::RHI
 		};
 	};
 
-	void CVulkanGraphicsPipeline::Invalidate( const SVulkanPipelineCreationInfo* pInfo ) NOEXCEPT
+	void CVulkanGraphicsPipeline::Invalidate( const SPipelineCreationInfo* pInfo ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
+
+		MW_TRACE( "Create Vulkan Pipeline" );
 
 		struct alignas( 16 ) PushConstantData
 		{
@@ -371,7 +378,7 @@ namespace Monoworks::RHI
 		pipelineRasterizationCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		pipelineRasterizationCreateInfo.depthClampEnable = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_DEPTH_CLAMP_BIT;
 		pipelineRasterizationCreateInfo.rasterizerDiscardEnable = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_RASTERIZER_DISCARD_BIT;
-		pipelineRasterizationCreateInfo.depthBiasClamp = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_DEPTH_BIAS_BIT;
+		pipelineRasterizationCreateInfo.depthClampEnable = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_DEPTH_BIAS_BIT;
 		pipelineRasterizationCreateInfo.cullMode = ToVulkanCullMode( pInfo->CullMode );
 		pipelineRasterizationCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		pipelineRasterizationCreateInfo.polygonMode = ToVulkanPolygonMode( pInfo->PolygonMode );

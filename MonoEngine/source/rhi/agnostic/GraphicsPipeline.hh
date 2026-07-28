@@ -1,6 +1,8 @@
 #pragma once
 #include <common/Base.hh>
 
+#include <rhi/Utils.hh>
+
 namespace Monoworks::RHI 
 {
 	enum EPrimitiveTopology : u8
@@ -86,7 +88,7 @@ namespace Monoworks::RHI
 		MW_BLEND_MODE_COUNT
 	};
 
-	enum EPipelineFlagBits 
+	enum EPipelineCreationFlagBits 
 	{
 		MW_PIPELINE_CREATION_FLAGS_NONE_BIT = 0,
 
@@ -124,8 +126,34 @@ namespace Monoworks::RHI
 		bool BlendEnable;
 	};
 
+	struct SPipelineCreationInfo
+	{
+		std::vector<SShaderObject> ShaderObjects;
+		std::vector<EImageFormat> ColorFormats;
+		std::vector<SColorBlendAttachmentState> ColorBlendAttachments;
+		std::vector<EDynamicState> DynamicStates = { MW_DYNAMIC_STATE_VIEWPORT_COUNT, MW_DYNAMIC_STATE_VIEWPORT_COUNT };
+		EPipelineCreationFlagBits Flags;
+		EImageFormat DepthAttachmentFormat;
+		EImageFormat StencilAttachmentFormat;
+
+		u32 ViewportCount = 1;
+		u32 ScissorCount = 1;
+		ECompareOp CompareOp = MW_COMPARE_OP_LESS;
+		ECullMode CullMode = MW_CULL_MODE_BACK;
+		EPrimitiveTopology Topology = MW_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+		EPolygonMode PolygonMode = MW_POLYGON_MODE_FILL;
+	};
+
 	class IGraphicsPipeline 
 	{
+	public:
+		virtual ~IGraphicsPipeline() NOEXCEPT;
+		
+		virtual void Init( const SPipelineCreationInfo* pInfo ) = 0;
+		virtual void Shutdown() = 0;
+		
+		virtual void Invalidate( const SPipelineCreationInfo* pInfo ) = 0;
 
+		Ref<IGraphicsPipeline> Create( const SPipelineCreationInfo* pInfo ) NOEXCEPT;
 	};
 }
