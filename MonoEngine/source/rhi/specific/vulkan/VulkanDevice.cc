@@ -9,8 +9,6 @@
 #include "VulkanDevice.hh"
 #include "VulkanContext.hh"
 
-#include <../../MonoRuntime/source/rhi/specific/vulkan/VulkanSDLPresenter.hh>
-
 namespace Monoworks::RHI 
 {
 
@@ -313,9 +311,9 @@ namespace Monoworks::RHI
 
 			if ( CApplication::GetCreateInfos()->UseSwapchain && CApplication::GetCreateInfos()->pPresenter->GetMedium() == MW_PRESENTATION_MEDIUM_VULKAN_SDL )
 			{
-				auto presenter = ( CVulkanSDLPresenter* )CVulkanContext::GetPresenter();
+				auto presenter = CVulkanContext::GetPresenter();
 				VkBool32 presentSupport = false;
-				vkGetPhysicalDeviceSurfaceSupportKHR( *pPhysDevice, i, *presenter->GetSurface(), &presentSupport );
+				vkGetPhysicalDeviceSurfaceSupportKHR( *pPhysDevice, i, *( VkSurfaceKHR* )presenter->GetSurface(), &presentSupport );
 				if ( queueFamily.queueCount > 0 && presentSupport )
 				{
 					indices.PresentFamily = i;

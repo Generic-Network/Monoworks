@@ -57,6 +57,7 @@ namespace Monoworks::RHI
 		virtual void Present( const IPresentationPresentInfo* pInfo ) NOEXCEPT = 0;
 
 		NODISCARD const virtual std::vector<Ref<ITexture2D>>& GetSwapchainImages() NOEXCEPT = 0;
+		NODISCARD virtual void* GetSurface() NOEXCEPT = 0;
 		NODISCARD const EPresentationMedium GetMedium() const NOEXCEPT { return m_PresentationMedium; };
 
 	protected: 

@@ -27,7 +27,7 @@ namespace Monoworks::RHI
 		void Present( const IPresentationPresentInfo* pInfo ) NOEXCEPT override;
 
 		NODISCARD const std::vector<Ref<ITexture2D>>& GetSwapchainImages() NOEXCEPT override { return m_SwapchainImages; };
-		NODISCARD VkSurfaceKHR* GetSurface() NOEXCEPT { return &m_Surface; };
+		NODISCARD void* GetSurface() NOEXCEPT override { return &m_Surface; };
 		NODISCARD VkSwapchainKHR* GetSwapchain() NOEXCEPT { return &m_Swapchain; }
 	private:
 		VkSurfaceKHR m_Surface;
