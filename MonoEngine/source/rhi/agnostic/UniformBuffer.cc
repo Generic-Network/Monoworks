@@ -2,8 +2,8 @@
 
 #include <core/Application.hh>
 
-#include "UniformBuffer.h"
-#include <rhi/specific/vulkan/VulkanUniformBuffer.h>
+#include "UniformBuffer.hh"
+#include <rhi/specific/vulkan/VulkanUniformBuffer.hh>
 
 namespace Monoworks::RHI 
 {

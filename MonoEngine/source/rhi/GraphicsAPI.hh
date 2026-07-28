@@ -8,8 +8,8 @@ namespace Monoworks::RHI
     public:
         virtual ~IGraphicsAPI() = default;
 
-        virtual void Init() noexcept = 0;
-        virtual void Shutdown() noexcept = 0;
+        virtual void Init() NOEXCEPT = 0;
+        virtual void Shutdown() NOEXCEPT = 0;
     };
 
 }

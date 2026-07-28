@@ -1,7 +1,7 @@
 #include "EventDispatcher.hh"
 
 #include <common/Base.hh>
-#include <common/Events.h>
+#include <common/Events.hh>
 
 #include <events/EventManager.hh>
 

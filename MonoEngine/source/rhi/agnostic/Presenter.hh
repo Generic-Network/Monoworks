@@ -1,6 +1,6 @@
 #pragma once
 #include <common/Base.hh>
-#include <common/Events.h>
+#include <common/Events.hh>
 #include <events/Event.hh>
 
 #include "Texture.hh"
@@ -53,7 +53,7 @@ namespace Monoworks::RHI
 
 		virtual bool OnResize( SEvent& event ) = 0;
 
-		NODISCARD virtual u32 Aquire( const IPresentationAcquisitionInfo* pInfo ) NOEXCEPT = 0;
+		NODISCARD virtual u32 Acquire( const IPresentationAcquisitionInfo* pInfo ) NOEXCEPT = 0;
 		virtual void Present( const IPresentationPresentInfo* pInfo ) NOEXCEPT = 0;
 
 		NODISCARD const virtual std::vector<Ref<ITexture2D>>& GetSwapchainImages() NOEXCEPT = 0;

@@ -3,6 +3,8 @@
 
 #include <rhi/Utils.hh>
 
+#include <rhi/agnostic/VertexBuffer.hh>
+
 namespace Monoworks::RHI 
 {
 	enum EPrimitiveTopology : u8
@@ -127,7 +129,8 @@ namespace Monoworks::RHI
 	};
 
 	struct SPipelineCreationInfo
-	{
+	{ 
+		CVertexLayout VertexLayout;
 		std::vector<SShaderObject> ShaderObjects;
 		std::vector<EImageFormat> ColorFormats;
 		std::vector<SColorBlendAttachmentState> ColorBlendAttachments;

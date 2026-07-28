@@ -28,6 +28,7 @@ namespace Monoworks::RHI
 	void CVulkanGraphicsPipeline::Init( const SPipelineCreationInfo* pInfo ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
+		m_VertexLayout = pInfo->VertexLayout;
 		Invalidate( pInfo );
 	}
 
@@ -135,6 +136,7 @@ namespace Monoworks::RHI
 		case MW_COMPARE_OP_ALWAYS:
 			return VK_COMPARE_OP_ALWAYS;
 		default:
+			MW_API_ERROR( "Pass invalid ECompareOp Enumeration." );
 			return VK_COMPARE_OP_MAX_ENUM;
 		}
 	}
@@ -152,7 +154,6 @@ namespace Monoworks::RHI
 			if ( !( flags & MW_PIPELINE_CREATION_FLAGS_TESSELATION_CONTROL_SHADER_BIT ) )
 			{
 				MW_API_ERROR( "Pass Tesselation Control Shader without MW_PIPELINE_CREATION_FLAGS_TESSELATION_CONTROL_SHADER_BIT set." );
-				break;
 			}
 			return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
 		}
@@ -161,7 +162,6 @@ namespace Monoworks::RHI
 			if ( !( flags & MW_PIPELINE_CREATION_FLAGS_TESSELATION_EVALULATION_SHADER_BIT ) )
 			{
 				MW_API_ERROR( "Pass Tesselation Evaluation Shader without MW_PIPELINE_CREATION_FLAGS_TESSELATION_EVALULATION_SHADER_BIT set." );
-				break;
 			}
 			return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
 		}
@@ -170,17 +170,17 @@ namespace Monoworks::RHI
 			if ( !( flags & MW_PIPELINE_CREATION_FLAGS_GEOMETRY_SHADER_BIT ) )
 			{
 				MW_API_ERROR( "Pass Geometry Shader without MW_PIPELINE_CREATION_FLAGS_GEOMETRY_SHADER_BIT set." );
-				break;
 			}
 			return VK_SHADER_STAGE_GEOMETRY_BIT;
 		}
 		case MW_SHADER_STAGE_COMPUTE:
 		{
 			MW_API_ERROR( "Pass Compute Shader to Graphics Pipeline" );
-			break;
+			return VK_SHADER_STAGE_COMPUTE_BIT;
 		}
 		default:
 		{
+			MW_API_ERROR( "Pass invalid EShaderStage Enumeration." );
 			return VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 		}
 		};
@@ -189,7 +189,7 @@ namespace Monoworks::RHI
 	void CVulkanGraphicsPipeline::Invalidate( const SPipelineCreationInfo* pInfo ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
-
+		auto device = CVulkanContext::GetDevice()->GetDevice();
 		MW_TRACE( "Create Vulkan Pipeline" );
 
 		struct alignas( 16 ) PushConstantData
@@ -208,6 +208,9 @@ namespace Monoworks::RHI
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &range;
+
+		// TODO: Allocation Callbacks
+		vkCreatePipelineLayout( *device, &pipelineLayoutInfo, nullptr, &m_VulkanPipelineLayout );
 
 		std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 		std::vector<VkShaderModule> modules;
@@ -294,13 +297,16 @@ namespace Monoworks::RHI
 			if ( element.Type == MW_SHADER_DATA_TYPE_MAT_3 || element.Type == MW_SHADER_DATA_TYPE_MAT_4 )
 			{
 				uint32_t count = ( element.Type == MW_SHADER_DATA_TYPE_MAT_4 ) ? 4 : 3;
+				const bool isMat4 = ( element.Type == MW_SHADER_DATA_TYPE_MAT_4 );
+				const VkFormat columnFormat = isMat4 ? VK_FORMAT_R32G32B32A32_SFLOAT : VK_FORMAT_R32G32B32_SFLOAT;
+				const uint32_t columnStride = isMat4 ? 16u : 12u;
 				for ( uint32_t i = 0; i < count; i++ )
 				{
 					VkVertexInputAttributeDescription attr{};
 					attr.binding = 0;
 					attr.location = location++;
-					attr.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-					attr.offset = element.Offset + ( i * 16 );
+					attr.format = columnFormat;
+					attr.offset = element.Offset + ( i * columnStride );
 					attributeDescs.push_back( attr );
 				}
 			}
@@ -376,9 +382,9 @@ namespace Monoworks::RHI
 
 		VkPipelineRasterizationStateCreateInfo pipelineRasterizationCreateInfo{};
 		pipelineRasterizationCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		pipelineRasterizationCreateInfo.depthClampEnable = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_DEPTH_CLAMP_BIT;
 		pipelineRasterizationCreateInfo.rasterizerDiscardEnable = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_RASTERIZER_DISCARD_BIT;
-		pipelineRasterizationCreateInfo.depthClampEnable = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_DEPTH_BIAS_BIT;
+		pipelineRasterizationCreateInfo.depthClampEnable = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_DEPTH_CLAMP_BIT;
+		pipelineRasterizationCreateInfo.depthBiasClamp = pInfo->Flags & MW_PIPELINE_CREATION_FLAGS_DEPTH_BIAS_BIT;
 		pipelineRasterizationCreateInfo.cullMode = ToVulkanCullMode( pInfo->CullMode );
 		pipelineRasterizationCreateInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;
 		pipelineRasterizationCreateInfo.polygonMode = ToVulkanPolygonMode( pInfo->PolygonMode );
@@ -422,7 +428,6 @@ namespace Monoworks::RHI
 		graphicsPipelineCreateInfo.pDynamicState = &pipelineDynamicStateCreateInfo;
 
 		// TODO: Allocation Callbacks
-		auto device = CVulkanContext::GetDevice()->GetDevice();
 		if ( vkCreateGraphicsPipelines( *device, *CVulkanContext::GetPipelineCache(), 1, &graphicsPipelineCreateInfo, nullptr, &m_VulkanPipeline ) != VK_SUCCESS )
 		{
 			MW_ERROR("Non-Fataly failed to create some graphics pipelines");

@@ -5,7 +5,7 @@
 #include <events/EventManager.hh>
 #include <events/Event.hh>
 
-#include <common/Events.h>
+#include <common/Events.hh>
 #include <common/Base.hh>
 
 #include <functional>
@@ -110,8 +110,7 @@ namespace Monoworks
 
 		Events::SAppRender render{};
 		CEventManager::EmitEventNonDeffered(render, MW_EVENT_APP_RENDER);
-		// render here
-		std::this_thread::sleep_for(std::chrono::milliseconds(7));
+
 
 
 		FrameMark;

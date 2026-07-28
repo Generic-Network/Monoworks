@@ -1,7 +1,7 @@
 #include <mwpch.hh>
 
 #include "VulkanContext.hh"
-#include "VulkanDevice.h"
+#include "VulkanDevice.hh"
 
 #include "VulkanPresenter.hh"
 
@@ -66,7 +66,7 @@ namespace Monoworks::RHI
 		return VK_FALSE;
 	}
 
-	static SVersion GetVulkanVersion( u32 vulkanVersion = MW_VK_VERSION )
+	static SVersion GetVulkanVersion( u32 vulkanVersion = MW_VK_VERSION ) NOEXCEPT
 	{
 		SVersion temp {};
 
@@ -79,7 +79,7 @@ namespace Monoworks::RHI
 		return temp;
 	}
 
-	void CVulkanContext::Init()
+	void CVulkanContext::Init() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		MW_INFO( "Initialize CVulkanContext" );
@@ -161,7 +161,7 @@ namespace Monoworks::RHI
 #endif
 	}
 
-	static inline bool CheckValidationLayerSupport( const std::vector<const char*>& validationLayers )
+	static inline bool CheckValidationLayerSupport( const std::vector<const char*>& validationLayers ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 
@@ -194,13 +194,13 @@ namespace Monoworks::RHI
 
 	}
 
-	void CVulkanContext::Shutdown()
+	void CVulkanContext::Shutdown() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		MW_INFO("Shutdown CVulkanContext");
 	}
 
-	void CVulkanContext::CreateInstance()
+	void CVulkanContext::CreateInstance() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		if (m_EnableValidationLayers && !CheckValidationLayerSupport(m_ValidationLayers))
@@ -276,7 +276,7 @@ namespace Monoworks::RHI
 
 	}
 
-	void CVulkanContext::CreateVmaAllocator()
+	void CVulkanContext::CreateVmaAllocator() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		VmaVulkanFunctions vulkanFunctions{};
@@ -284,11 +284,11 @@ namespace Monoworks::RHI
 
 	}
 
-	void CVulkanContext::SetupDebugMessenger() noexcept
+	void CVulkanContext::SetupDebugMessenger() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		if (!m_EnableValidationLayers) return;
-		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 		debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
 			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
@@ -302,7 +302,7 @@ namespace Monoworks::RHI
 	}
 
 
-	std::vector<const char*> CVulkanContext::GetRequiredExtensions() noexcept
+	std::vector<const char*> CVulkanContext::GetRequiredExtensions() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 
@@ -325,7 +325,7 @@ namespace Monoworks::RHI
 		}
 
 #ifdef MW_PLATFORM_OSX
-		extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+		requiredExtensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
 
 		requiredExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
@@ -340,7 +340,7 @@ namespace Monoworks::RHI
 	}
 	
 
-	VkResult CVulkanContext::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) noexcept
+	VkResult CVulkanContext::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
@@ -356,12 +356,12 @@ namespace Monoworks::RHI
 		}
 	}
 
-	void CVulkanContext::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) noexcept
+	void CVulkanContext::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) NOEXCEPT
 	{
 
 	}
 
-	void CVulkanContext::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& pCreateInfo) noexcept
+	void CVulkanContext::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& pCreateInfo) NOEXCEPT
 	{
 
 	}

@@ -11,6 +11,7 @@
 #pragma once
 #include <core/MemoryManager.hh>
 #include <common/Base.hh>
+#include "Log.hh"
 
 #include <atomic>
 #include <utility>
@@ -228,10 +229,15 @@ namespace Monoworks
 			MW_PROFILE_FUNC;
 			using SBlock = SControlBlock<T>;
 
-			SHandle handle = CMemoryManager::Allocate(sizeof(SBlock));
-			void* rawMem = CMemoryManager::Get(handle);
+			SHandle handle = CMemoryManager::Allocate(static_cast<u32>(sizeof(SBlock)));
+			void* pRawMem = CMemoryManager::Get(handle);
 
-			SBlock* pBlock = new (rawMem) SBlock(std::forward<Args>(args)...);
+			if ( !pRawMem )
+			{
+				return CRef<T>();
+			}
+
+			SBlock* pBlock = new ( pRawMem ) SBlock(std::forward<Args>(args)...);
 
 			CRef<T> ref;
 			ref.m_Handle = handle;
@@ -240,15 +246,19 @@ namespace Monoworks
 		};
 
 		/**
-		* @brief Dynamic downcast (z.B. CRef<ITexture2D> zu CRef<CVulkanTexture2D>)
+		* @brief dynamic downcast
 		*/
 		template <typename U>
 		NODISCARD CRef<U> As() const NOEXCEPT
 		{
 			MW_PROFILE_FUNC;
 
-			U* pCastPtr = dynamic_cast< U* >( m_pPtr );
+			if ( !m_pPtr || !CMemoryManager::IsValid( m_Handle ) )
+			{
+				return CRef<U>();
+			}
 
+			U* pCastPtr = dynamic_cast< U* >( m_pPtr );
 			if ( !pCastPtr || !CMemoryManager::IsValid( m_Handle ) )
 			{
 				return CRef<U>();

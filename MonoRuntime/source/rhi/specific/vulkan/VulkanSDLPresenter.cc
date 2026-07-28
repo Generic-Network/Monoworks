@@ -21,6 +21,8 @@ namespace Monoworks::RHI
 
 		m_SwapchainExtent = swapchainExtent;
 
+		m_VSync = vsync;
+
 		SDL_SetWindowSize( window, m_SwapchainExtent.Width, m_SwapchainExtent.Height );
 	}
 
@@ -157,18 +159,27 @@ namespace Monoworks::RHI
 			surfaceFormat = swapChainSupport.Formats[0];
 		};
 				
-		VkPresentModeKHR presentMode;
-		for (const auto& availablePresentMode : swapChainSupport.PresentModes)
+		VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
+
+		if ( !m_VSync )
 		{
-			if ( availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR && !m_VSync )
+			for ( const auto& availablePresentMode : swapChainSupport.PresentModes )
 			{
-				MW_INFO( "Present mode: Mailbox" );
-				presentMode = availablePresentMode;
-				break;
+				if ( availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR )
+				{
+					presentMode = availablePresentMode;
+					break;
+				}
 			}
-			MW_INFO( "Present mode: V-Sync" );
-			presentMode = VK_PRESENT_MODE_FIFO_KHR;
-			break;
+		}
+
+		if ( presentMode == VK_PRESENT_MODE_MAILBOX_KHR )
+		{
+			MW_INFO( "Present mode: Mailbox" );
+		}
+		else
+		{
+			MW_INFO( "Present mode: V-Sync (FIFO)" );
 		}
 		
 		VkExtent2D extent;
@@ -237,7 +248,7 @@ namespace Monoworks::RHI
 
 		createInfoVk.oldSwapchain = VK_NULL_HANDLE;
 
-		MW_VK_CHECK( vkCreateSwapchainKHR( *info->pVulkanDevice->GetDevice(), &createInfoVk, nullptr, &m_Swapchain ), "Failed to create Swapchain" )
+		MW_VK_CHECK( vkCreateSwapchainKHR( *info->pVulkanDevice->GetDevice(), &createInfoVk, nullptr, &m_Swapchain ), "Failed to create Swapchain" );
 
 		vkGetSwapchainImagesKHR( *info->pVulkanDevice->GetDevice(), m_Swapchain, &imageCount, nullptr );
 		m_SwapchainImages.resize( imageCount );
@@ -321,10 +332,10 @@ namespace Monoworks::RHI
 		return false;
 	}
 
-	NODISCARD u32 CVulkanSDLPresenter::Aquire( const IPresentationAcquisitionInfo* pInfo ) NOEXCEPT 
+	NODISCARD u32 CVulkanSDLPresenter::Acquire( const IPresentationAcquisitionInfo* pInfo ) NOEXCEPT 
 	{
 		MW_PROFILE_FUNC;
-		MW_ASSERT( pInfo->Medium != MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
+		MW_ASSERT( pInfo->Medium == MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
 
 		auto info = ( SVulkanSDLPresentationAcquisitionInfo* )pInfo;
 
@@ -350,7 +361,7 @@ namespace Monoworks::RHI
 	void CVulkanSDLPresenter::Present( const IPresentationPresentInfo* pInfo ) NOEXCEPT 
 	{
 		MW_PROFILE_FUNC;
-		MW_ASSERT( pInfo->Medium != MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
+		MW_ASSERT( pInfo->Medium == MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
 
 		auto info = ( SVulkanSDLPresentationPresentInfo* )pInfo;
 

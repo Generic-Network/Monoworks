@@ -4,13 +4,13 @@
 
 namespace Monoworks::RHI 
 {
-    void CVulkanRenderer::Init() noexcept override
+    void CVulkanRenderer::Init() NOEXCEPT
     {
         MW_PROFILE_FUNC;
         MW_INFO("Initialize CVulkanRenderer");
     } 
 
-    void CVulkanRenderer::Shutdown() noexcept override 
+    void CVulkanRenderer::Shutdown() NOEXCEPT 
     {
         MW_PROFILE_FUNC;
         MW_INFO("Shutdown CVulkanRenderer");

@@ -2,7 +2,7 @@
 
 #include "VulkanContext.hh"
 
-#include "VulkanIndexBuffer.h"
+#include "VulkanIndexBuffer.hh"
 
 namespace Monoworks::RHI
 {

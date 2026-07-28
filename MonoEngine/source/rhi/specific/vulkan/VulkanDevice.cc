@@ -6,7 +6,7 @@
 #include <volk/volk.h>
 #include <set>
 
-#include "VulkanDevice.h"
+#include "VulkanDevice.hh"
 #include "VulkanContext.hh"
 
 #include <../../MonoRuntime/source/rhi/specific/vulkan/VulkanSDLPresenter.hh>
@@ -57,6 +57,7 @@ namespace Monoworks::RHI
 			}
 		}
 		MW_ASSERT(false, "Failed to find suitable memory type");
+		return 0;
 	}
 
 	VkFormat CVulkanDevice::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
@@ -117,8 +118,17 @@ namespace Monoworks::RHI
 		MW_PROFILE_FUNC;
 		QueueFamilyIndices indices = FindQueueFamilies(&m_PhysicalDevice);
 
-		std::set<u32> uniqueQueueFamilies = { indices.GraphicsFamily, indices.ComputeFamily, indices.TransferFamily };
+		std::set<u32> uniqueQueueFamilies;
 
+		if ( CApplication::GetCreateInfos()->UseSwapchain )
+		{
+			uniqueQueueFamilies = { indices.GraphicsFamily, indices.ComputeFamily, indices.TransferFamily, indices.PresentFamily };
+		} else 
+		{
+			uniqueQueueFamilies = { indices.GraphicsFamily, indices.ComputeFamily, indices.TransferFamily };
+		}
+
+		
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 		queueCreateInfos.reserve(uniqueQueueFamilies.size());
 
@@ -136,6 +146,10 @@ namespace Monoworks::RHI
 			else if (queueFamily == indices.ComputeFamily && queueFamily != indices.GraphicsFamily)
 			{
 				currentPriority = 0.5f;
+			}
+			else if ( queueFamily == indices.PresentFamily && queueFamily != indices.GraphicsFamily )
+			{
+				currentPriority = 1.0f;
 			}
 
 			priorities[priorityIndex] = currentPriority;
@@ -190,9 +204,15 @@ namespace Monoworks::RHI
 			MW_ASSERT(false, "Failed to create logical device");
 		}
 
-		vkGetDeviceQueue(m_Device, indices.GraphicsFamily, 0, &m_GraphicsQueue);
-		vkGetDeviceQueue(m_Device, indices.ComputeFamily, 0, &m_ComputeQueue);
-		vkGetDeviceQueue(m_Device, indices.TransferFamily, 0, &m_TransferQueue);
+		vkGetDeviceQueue( m_Device, indices.GraphicsFamily, 0, &m_GraphicsQueue );
+		vkGetDeviceQueue( m_Device, indices.ComputeFamily, 0, &m_ComputeQueue );
+		vkGetDeviceQueue( m_Device, indices.TransferFamily, 0, &m_TransferQueue );
+		
+		if ( CApplication::GetCreateInfos()->UseSwapchain )
+		{
+			vkGetDeviceQueue( m_Device, indices.PresentFamily, 0, &m_PresentQueue );
+		}
+
 	}
 
 	void CVulkanDevice::CreateCommandPool() noexcept
@@ -303,15 +323,10 @@ namespace Monoworks::RHI
 				}
 			}
 
-			if ( CApplication::GetCreateInfos()->UseSwapchain )
-			{
-				if ( indices.GraphicsFamilyHasValue && indices.ComputeFamilyHasValue && indices.TransferFamilyHasValue && indices.PresentFamilyHasValue )
-				{
-					break;
-				}
-			} 
-
-			if (indices.GraphicsFamilyHasValue && indices.ComputeFamilyHasValue && indices.TransferFamilyHasValue)
+			const bool coreFound = indices.GraphicsFamilyHasValue && indices.ComputeFamilyHasValue && indices.TransferFamilyHasValue;
+			const bool presentFound = !CApplication::GetCreateInfos()->UseSwapchain || indices.PresentFamilyHasValue;
+			
+			if ( coreFound && presentFound )
 			{
 				break;
 			}
@@ -456,9 +471,9 @@ namespace Monoworks::RHI
 		bufferRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 		bufferRegion.imageSubresource.mipLevel = 0;
 		bufferRegion.imageSubresource.baseArrayLayer = 0;
-		bufferRegion.imageSubresource.layerCount = 1;
+		bufferRegion.imageSubresource.layerCount = layerCount;
 		bufferRegion.imageOffset = { 0, 0, 0 };
-		bufferRegion.imageExtent = { width, height };
+		bufferRegion.imageExtent = { width, height, 1 };
 
 		vkCmdCopyImageToBuffer( *pCmdBuffer, *pSrc, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, *pDst, 1, &bufferRegion );
 
@@ -475,11 +490,6 @@ namespace Monoworks::RHI
 
 
 		SwapChainSupportDetails details;
-
-		MW_INFO( "sizeof(VkSurfaceCapabilitiesKHR) = {}", sizeof( VkSurfaceCapabilitiesKHR ) );
-		MW_INFO( "pPhysDevice stack address = {}", ( void* )&pPhysDevice );
-		MW_INFO( "details.Capabilities address = {}", ( void* )&details.Capabilities );
-
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR( pPhysDevice, pSurface, &details.Capabilities );  
 
 		u32 formatCount;

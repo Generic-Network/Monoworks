@@ -1,5 +1,5 @@
 #include "Window.hh"
-#include <common/Log.h>
+#include <common/Log.hh>
 
 namespace Monoworks
 {

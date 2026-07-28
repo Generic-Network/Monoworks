@@ -3,14 +3,12 @@
 #include <volk/volk.h>
 #include "VulkanResourceUploader.hh"
 
-#include "VulkanDevice.h"
+#include "VulkanDevice.hh"
 #include "VulkanContext.hh"
 
 
 namespace Monoworks::RHI 
 {
-
-
 	void CVulkanResourceUploader::Init() noexcept
 	{
 		MW_PROFILE_FUNC;
@@ -24,20 +22,20 @@ namespace Monoworks::RHI
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		allocInfo.commandBufferCount = 1;
 
-		MW_VK_CHECK(vkAllocateCommandBuffers(
+		MW_VK_CHECK( vkAllocateCommandBuffers(
 			*CVulkanContext::GetDevice()->GetDevice(),
 			&allocInfo,
-			&m_Commandbuffer), "Failed to create Transfer Command Buffer")
+			&m_Commandbuffer ), "Failed to create Transfer Command Buffer" );
 
 		VkFenceCreateInfo fenceInfo{};
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		MW_VK_CHECK(vkCreateFence(
+		MW_VK_CHECK( vkCreateFence(
 			*CVulkanContext::GetDevice()->GetDevice(),
 			&fenceInfo,
 			nullptr,
-			&m_Fence), "Failed to create Transfer Fence")
+			&m_Fence ), "Failed to create Transfer Fence" );
 	}
 
 	void CVulkanResourceUploader::Shutdown() NOEXCEPT
@@ -88,7 +86,7 @@ namespace Monoworks::RHI
 		submitInfo.pCommandBuffers = &m_Commandbuffer;
 
 		vkQueueSubmit(
-			*CVulkanContext::GetDevice()->GetGraphicsQueue(),
+			*CVulkanContext::GetDevice()->GetTransferQueue(),
 			1,
 			&submitInfo,
 			m_Fence

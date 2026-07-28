@@ -100,6 +100,8 @@ namespace Monoworks
 		m_pWindow->Shutdown();
 		m_pApplication->Shutdown();
 
+		free( ( void* )m_pApplication->GetCreateInfos()->pName );
+
 		delete m_pApplication;
 	}
 

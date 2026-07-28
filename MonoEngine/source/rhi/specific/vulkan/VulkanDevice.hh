@@ -119,28 +119,28 @@ namespace Monoworks::RHI
 
 		VkPhysicalDeviceProperties m_Properties;
 
-		VkDevice m_Device;
-		VkPhysicalDevice m_PhysicalDevice;
+		VkDevice m_Device = nullptr;
+		VkPhysicalDevice m_PhysicalDevice = nullptr;
 
-		VkCommandPool m_GraphicsCommandPool;
-		VkQueue m_GraphicsQueue;
+		VkCommandPool m_GraphicsCommandPool = nullptr;
+		VkQueue m_GraphicsQueue = nullptr;
 
-		VkCommandPool m_TransferCommandPool;
-		VkQueue m_TransferQueue;
+		VkCommandPool m_TransferCommandPool = nullptr;
+		VkQueue m_TransferQueue = nullptr;
 
-		VkCommandPool m_ComputeCommandPool;
-		VkQueue m_ComputeQueue;
+		VkCommandPool m_ComputeCommandPool = nullptr;
+		VkQueue m_ComputeQueue = nullptr;
 
-		VkQueue m_PresentQueue;
+		VkQueue m_PresentQueue = nullptr;
 
-		VkInstance* m_Instance;
+		VkInstance* m_Instance = nullptr;
 
 		std::vector<const char*> m_DeviceExtensions =
 		{
 			VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME, 
 			VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
 #ifdef MW_PLATFORM_OSX
-			,VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+			VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 #endif
 		};
 

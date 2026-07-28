@@ -20,7 +20,7 @@
 #include <core/ConfigManager.hh>
 
 // Events
-#include <common/Events.h>
+#include <common/Events.hh>
 #include <events/Event.hh>
 #include <events/EventManager.hh>
 

@@ -4,7 +4,7 @@
 #include <volk/volk.h>
 #include <vk_mem_alloc.h>
 
-#include <rhi/agnostic/UniformBuffer.h>
+#include <rhi/agnostic/UniformBuffer.hh>
 
 namespace Monoworks::RHI 
 {

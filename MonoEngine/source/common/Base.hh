@@ -17,7 +17,7 @@
 
 #pragma once
 #include <cstdint>
-#include <common/Log.h>
+#include <common/Log.hh>
 #include <common/Memory.hh>
 #include <core/CVarManager.hh>
 
@@ -43,18 +43,14 @@
 
 #ifdef MW_DEBUG
 #define MW_ENABLE_ASSERTS
+#define MW_ENABLE_VERIFY
 #endif
 
-#define MW_ENABLE_VERIFY
-
-#define MW_ENABLE_ASSERTS 1
 #ifdef	MW_ENABLE_ASSERTS
-
-  // Note [21.02.26, Theo]: Do not use VT_CORE_ASSERT / VT_ASSERT when a function/check also needs to be run in a dist
+  // Note [21.02.26, Theo]: Do not use MW_CORE_ASSERT / MW_ASSERT when a function/check also needs to be run in a dist
   // build. e.g. vkCreatePipeline. For Vulkan Functions use VT_VK_CHECK (Core.h)
 #define MW_ASSERT(condition, ...) { if(!(condition)) { MW_ERROR(__VA_ARGS__); MW_DEBUG_BREAK; } }
 #else
-#define MW_CORE_ASSERT(condition, ...)
 #define MW_ASSERT(condition, ...)
 #endif
 
@@ -99,7 +95,12 @@ extern TracyVkCtx TracyTransferContext;
 
 
 #ifdef MW_VULKAN
-#define MW_VK_CHECK(x, err, ...) if (x != VK_SUCCESS) { MW_ASSERT(err, __VA_ARGS__); };
+#define MW_VK_CHECK(x, err, ...) if (x != VK_SUCCESS) { MW_ASSERT(false, __VA_ARGS__); };
+#define MW_VK_VERSION VK_API_VERSION_1_3
+#endif
+
+#ifdef MW_VULKAN
+#define MW_VK_CHECK( x, ... ) do { const VkResult mwVkRes__ = ( x ); if ( mwVkRes__ != VK_SUCCESS ) { MW_ASSERT( false, __VA_ARGS__ ); } } while ( 0 )
 #define MW_VK_VERSION VK_API_VERSION_1_3
 #endif
 

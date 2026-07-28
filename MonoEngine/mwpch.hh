@@ -27,6 +27,6 @@
 
 // Engine
 #include <common/Math.hh>
-#include <common/Log.h>
+#include <common/Log.hh>
 #include <common/Base.hh>
 #include <common/Memory.hh>

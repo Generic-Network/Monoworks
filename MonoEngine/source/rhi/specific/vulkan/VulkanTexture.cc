@@ -292,7 +292,7 @@ namespace Monoworks::RHI
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = 0.0f;
 
-		MW_VK_CHECK( vkCreateSampler( *device->GetDevice(), &samplerInfo, nullptr, &m_Sampler ), "Failed to create Texture Sampler" )
+		MW_VK_CHECK( vkCreateSampler( *device->GetDevice(), &samplerInfo, nullptr, &m_Sampler ), "Failed to create Texture Sampler" );
 
 	}
 

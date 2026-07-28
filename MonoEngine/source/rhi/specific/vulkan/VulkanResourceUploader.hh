@@ -14,10 +14,10 @@ namespace Monoworks::RHI
 		void Begin() noexcept;
 		void End() noexcept;
 
-		[[nodiscard]] VkCommandBuffer* GetCommandBuffer() noexcept { return &m_Commandbuffer; };
+		NODISCARD VkCommandBuffer* GetCommandBuffer() NOEXCEPT { return &m_Commandbuffer; };
 
 	private:
-		VkCommandBuffer m_Commandbuffer;
-		VkFence m_Fence;
+		VkCommandBuffer m_Commandbuffer = nullptr;
+		VkFence m_Fence = nullptr;
 	};
 }

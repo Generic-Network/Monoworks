@@ -4,7 +4,7 @@
 #include <rhi/agnostic/GraphicsContext.hh>
 #include <rhi/agnostic/Presenter.hh>
 
-#include <rhi/specific/vulkan/VulkanDevice.h>
+#include <rhi/specific/vulkan/VulkanDevice.hh>
 #include <rhi/specific/vulkan/VulkanResourceUploader.hh>
 
 #include <volk/volk.h>
@@ -20,8 +20,8 @@ namespace Monoworks::RHI
 	class CVulkanContext : public IGraphicsContext 
 	{
 	public:
-		void Init() override;
-		void Shutdown() override;
+		void Init() NOEXCEPT override;
+		void Shutdown() NOEXCEPT override;
 
 		NODISCARD static VkInstance* GetInstance() NOEXCEPT { return &m_Instance; }
 		NODISCARD static VkPipelineCache* GetPipelineCache() NOEXCEPT { return &m_PipelineCache; }
@@ -34,17 +34,17 @@ namespace Monoworks::RHI
 		
 
 	private:
-		void CreateInstance();
-		void CreateVmaAllocator();
+		void CreateInstance() NOEXCEPT;
+		void CreateVmaAllocator() NOEXCEPT;
 
-		NODISCARD std::vector<const char*> GetRequiredExtensions() noexcept;
+		NODISCARD std::vector<const char*> GetRequiredExtensions() NOEXCEPT;
 	
-		void PopulateDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT& pCreateInfo ) noexcept;
-		void SetupDebugMessenger() noexcept;
-		VkResult CreateDebugUtilsMessengerEXT( VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger ) noexcept;
-		void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator ) noexcept;
+		void PopulateDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT& pCreateInfo ) NOEXCEPT;
+		void SetupDebugMessenger() NOEXCEPT;
+		VkResult CreateDebugUtilsMessengerEXT( VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger ) NOEXCEPT;
+		void DestroyDebugUtilsMessengerEXT( VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator ) NOEXCEPT;
 
-		VkDebugUtilsMessengerEXT m_DebugMessenger;
+		VkDebugUtilsMessengerEXT m_DebugMessenger = nullptr;
 		static VkInstance m_Instance;
 		static VkPipelineCache m_PipelineCache;
 
