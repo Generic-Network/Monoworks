@@ -52,6 +52,7 @@ namespace Monoworks::RHI
 	void CVulkanResourceUploader::Begin() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
+		m_Mutex.lock();
 		MW_VK_CHECK(vkWaitForFences(
 			*CVulkanContext::GetDevice()->GetDevice(),
 			1,
@@ -91,14 +92,6 @@ namespace Monoworks::RHI
 			&submitInfo,
 			m_Fence
 		);
-
-		vkWaitForFences(
-			*CVulkanContext::GetDevice()->GetDevice(),
-			1,
-			&m_Fence,
-			VK_TRUE,
-			UINT64_MAX
-		);
-
+		m_Mutex.unlock();
 	}
 }

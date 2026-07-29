@@ -17,6 +17,8 @@ namespace Monoworks::RHI
 		NODISCARD VkCommandBuffer* GetCommandBuffer() NOEXCEPT { return &m_Commandbuffer; };
 
 	private:
+		std::mutex m_Mutex;
+
 		VkCommandBuffer m_Commandbuffer = nullptr;
 		VkFence m_Fence = nullptr;
 	};
