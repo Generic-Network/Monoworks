@@ -31,7 +31,7 @@ namespace Monoworks::RHI
 			MW_VK_CHECK( vkCreateFence( *device->GetDevice(), &fenceCreateInfo, nullptr, &frameData.InFlightFence), "Failed to create InFlightFence.");
 
 			VkCommandPoolCreateInfo poolCreateInfo{};
-			poolCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+			poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			poolCreateInfo.queueFamilyIndex = device->GetGraphicsQueueFamilyIndex();
 			poolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
@@ -146,8 +146,7 @@ namespace Monoworks::RHI
 
 
 		VkSubmitInfo2 submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.flags = 
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
 		submitInfo.waitSemaphoreInfoCount = 1; 
 		submitInfo.pWaitSemaphoreInfos =  &waitSemaphoreInfo;
 		submitInfo.commandBufferInfoCount = 1;

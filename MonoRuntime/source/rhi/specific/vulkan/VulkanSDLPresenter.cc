@@ -21,6 +21,8 @@ namespace Monoworks::RHI
 
 		m_SwapchainExtent = swapchainExtent;
 
+		m_ImagePresentedOnce.resize(MFIF);
+
 		m_VSync = vsync;
 
 		SDL_SetWindowSize( window, m_SwapchainExtent.Width, m_SwapchainExtent.Height );

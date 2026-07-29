@@ -1,10 +1,11 @@
+#pragma once
 #include <common/Base.hh>
 #include <common/Memory.hh>
 #include <common/Math.hh>
 
 #include <rhi/GraphicsAPI.hh>
 
-namespace Monoworks
+namespace Monoworks 
 {
     class CStaticRenderer
     {
@@ -15,9 +16,16 @@ namespace Monoworks
         static void BeginRendering() NOEXCEPT;
         static void EndRendering() NOEXCEPT;
 
-        NODISCARD static u32 GetCurrentFrameIndex() NOEXCEPT { return m_CurrentFrameIndex; };
+        NODISCARD static u32  GetCurrentFrameIndex() NOEXCEPT { return m_CurrentFrameIndex; };
+        NODISCARD static u32* GetCurrentFrameIndexPtr() NOEXCEPT { return &m_CurrentFrameIndex; };
+
+		NODISCARD static u32  GetCurrentImageIndex() NOEXCEPT { return m_CurrentImageIndex; };
+		NODISCARD static u32* GetCurrentImageIndexPtr() NOEXCEPT { return &m_CurrentImageIndex; };
+
     private:
         static u32 m_CurrentFrameIndex;
+        static u32 m_CurrentImageIndex;
+
         static Ref<RHI::IGraphicsAPI> m_pInstance;
     };
 }

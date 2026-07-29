@@ -1,16 +1,17 @@
 #include <mwpch.hh>
 #include <core/Application.hh>
 
-#include "StaticRenderer.hh"
-
 #include <rhi/specific/vulkan/VulkanRenderer.hh>
+
+#include "StaticRenderer.hh"
 
 namespace Monoworks 
 {
         Ref<RHI::IGraphicsAPI> CStaticRenderer::m_pInstance;
         u32                    CStaticRenderer::m_CurrentFrameIndex;
-
-        void CStaticRenderer::Init() noexcept
+		u32                    CStaticRenderer::m_CurrentImageIndex;
+         
+		void CStaticRenderer::Init() noexcept
         {
             MW_PROFILE_FUNC;
 

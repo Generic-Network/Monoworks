@@ -153,11 +153,9 @@ namespace Monoworks::RHI
 				return false;
 			});
 
-		m_ResouceUploader.Begin();
 		TracyGraphicsContext = MW_PROFILE_VK_CREATE_CTX( *m_Device.GetPhysicalDevice(), *m_Device.GetDevice(), *m_Device.GetGraphicsQueue(), *m_ResouceUploader.GetCommandBuffer() );
 		TracyComputeContext	 = MW_PROFILE_VK_CREATE_CTX( *m_Device.GetPhysicalDevice(), *m_Device.GetDevice(), *m_Device.GetComputeQueue(), *m_ResouceUploader.GetCommandBuffer() );
 		TracyTransferContext = MW_PROFILE_VK_CREATE_CTX( *m_Device.GetPhysicalDevice(), *m_Device.GetDevice(), *m_Device.GetTransferQueue(), *m_ResouceUploader.GetCommandBuffer() );
-		m_ResouceUploader.End();
 
 #endif
 	}
@@ -312,8 +310,11 @@ namespace Monoworks::RHI
 		if (!m_EnableValidationLayers) return;
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+		debugCreateInfo.messageSeverity = 
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | 
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
 		debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
 			VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
 			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;

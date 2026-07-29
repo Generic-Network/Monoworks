@@ -1,11 +1,11 @@
 #pragma once
 #include <common/Base.hh>
+
+#include <renderer/StaticRenderer.hh>
+
 #include <volk/volk.h>
 
-namespace Monoworks 
-{
-	class CStaticRenderer;
-}
+
 
 namespace Monoworks::RHI
 {
@@ -47,8 +47,8 @@ namespace Monoworks::RHI
 
 		NODISCARD static VkFence*			GetInFlightFence( u32 frameIndex )								NOEXCEPT { return &m_RootFrameData[frameIndex].InFlightFence; }; 
 
-		NODISCARD static VkCommandBuffer*	GetCurrentRootCommandBuffer()									NOEXCEPT { return &m_RootFrameData[CStaticRenderer::GetCurrentFrameIndex()].CommandBuffer; };
-		NODISCARD static VkCommandBuffer*	GetCurrentWorkerCommandBuffer( u32 workerThreadID )				NOEXCEPT { return &m_WorkerRenderData[workerThreadID].CommandBuffers[CStaticRenderer::GetCurrentFrameIndex()]; }
+		NODISCARD static VkCommandBuffer*	GetCurrentRootCommandBuffer()									NOEXCEPT { return &m_RootFrameData[Monoworks::CStaticRenderer::GetCurrentFrameIndex()].CommandBuffer; };
+		NODISCARD static VkCommandBuffer*	GetCurrentWorkerCommandBuffer( u32 workerThreadID )				NOEXCEPT { return &m_WorkerRenderData[workerThreadID].CommandBuffers[Monoworks::CStaticRenderer::GetCurrentFrameIndex()]; }
 
 	private: 
 		

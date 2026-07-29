@@ -41,7 +41,7 @@ namespace Monoworks::RHI
 		CVulkanDevice* pVulkanDevice;
 		const VkPhysicalDevice* pPhysDevice;
 		const VkDevice* pDevice;
-		VkQueue* pPresentQueue;
+		const VkQueue* pPresentQueue;
 		VkSemaphore* pRenderFinishedSemaphore;
 		u32* pImageIndex;
 	};

@@ -56,7 +56,7 @@ namespace Monoworks::RHI
 		static IPresenter* m_Presenter;
 
 		const std::vector<const char*> m_ValidationLayers = { "VK_LAYER_KHRONOS_validation" };
-		bool m_EnableValidationLayers;
+		bool m_EnableValidationLayers = true;
 
 	};
 }
