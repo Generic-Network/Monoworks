@@ -79,7 +79,6 @@ extern TracyVkCtx TracyTransferContext;
 
 #endif 
 
-
 #define MW_PROFILE_ALLOC(x, y) TracyAlloc(x, y)
 #define MW_PROFILE_ALLOC_N(x, y, z) TracyAllocN(x, y, z)
 
