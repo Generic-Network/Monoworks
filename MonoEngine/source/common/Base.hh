@@ -29,6 +29,7 @@
 #define NOEXCEPT noexcept
 #define NODISCARD [[nodiscard]]
 #define MAYBE_UNUSED [[maybe_unused]]
+#define UNLIKELY [[unlikely]]
 
 #ifdef	MW_PLATFORM_WINDOWS
 #define MW_DEBUG_BREAK __debugbreak()
@@ -108,6 +109,7 @@ extern TracyVkCtx TracyTransferContext;
 #define MW_SET_CVAR(varName, value) Monoworks::CCvarManager::Set(varName, value);
 #define MW_SET_FLOAT_CVAR(varName, value) Monoworks::CCvarManager::SetValue(varName, value);
 
+#define MW_DEFINE_DISPATCHABLE_EVENT(name) namespace Events { struct S##name {}; }
 
 using u8 = uint8_t;
 using u16 = uint16_t;
@@ -473,4 +475,6 @@ namespace Monoworks
 	constexpr SAppVersion MonoworksVersion = { .Major = 1, .Minor = 0, .Patch = 0 };
 	constexpr const char* EngineName = "MonoEngine";
 
+	// max frames in flight 
+	constexpr u32 MFIF = 3;
 }

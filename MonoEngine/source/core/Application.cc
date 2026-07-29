@@ -2,6 +2,8 @@
 #include "CVarManager.hh"
 #include "ConfigManager.hh"
 
+#include <renderer/StaticRenderer.hh>
+
 #include <events/EventManager.hh>
 #include <events/Event.hh>
 
@@ -74,7 +76,7 @@ namespace Monoworks
 		CLogManager::Shutdown();
 	}
 
-	void CApplication::Init(const SApplicationCreateInfos* pInfos) noexcept
+	void CApplication::Init(const SApplicationCreateInfos* pInfos) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 
@@ -84,12 +86,16 @@ namespace Monoworks
 
 		m_GraphicsContext = Ref<RHI::CVulkanContext>::Create();
 		m_GraphicsContext->Init();
+
+		CStaticRenderer::Init();
 	}
 
-	void CApplication::Shutdown() noexcept
+	void CApplication::Shutdown() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 		
+		CStaticRenderer::Shutdown();
+
 		m_GraphicsContext->Shutdown();
 		free((void*)m_pApplicationCreationInfos.pName);
 	}
@@ -108,9 +114,12 @@ namespace Monoworks
 		CEventManager::EmitEventNonDeffered(tick, MW_EVENT_APP_TICK);
 		// simulate here
 
+		CStaticRenderer::BeginRendering();
 
 		Events::SAppRender render{};
 		CEventManager::EmitEventNonDeffered(render, MW_EVENT_APP_RENDER);
+
+		CStaticRenderer::EndRendering();
 
 		std::this_thread::sleep_for( std::chrono::milliseconds( 7 ) );
 

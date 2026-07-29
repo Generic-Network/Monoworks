@@ -15,4 +15,14 @@ namespace Monoworks::RHI
         MW_PROFILE_FUNC;
         MW_INFO("Shutdown CVulkanRenderer");
     }
+
+    void CVulkanRenderer::BeginRendering() NOEXCEPT
+    {
+        MW_PROFILE_FUNC;
+    };
+
+    void CVulkanRenderer::EndRendering() NOEXCEPT
+    {
+        MW_PROFILE_FUNC;
+    };
 }

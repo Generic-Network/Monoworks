@@ -253,13 +253,18 @@ namespace Monoworks
 		{
 			MW_PROFILE_FUNC;
 
-			if ( !m_pPtr || !CMemoryManager::IsValid( m_Handle ) )
+			if ( !m_pPtr || !CMemoryManager::IsValid( m_Handle ) ) UNLIKELY
 			{
 				return CRef<U>();
 			}
 
 			U* pCastPtr = dynamic_cast< U* >( m_pPtr );
-			if ( !pCastPtr || !CMemoryManager::IsValid( m_Handle ) )
+			if ( !pCastPtr || !CMemoryManager::IsValid( m_Handle ) ) UNLIKELY
+			{
+				return CRef<U>();
+			}
+
+			if ( !CMemoryManager::IsValid( m_Handle ) ) UNLIKELY
 			{
 				return CRef<U>();
 			}

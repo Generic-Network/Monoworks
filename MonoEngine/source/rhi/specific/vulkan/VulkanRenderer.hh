@@ -9,5 +9,8 @@ namespace Monoworks::RHI
     {
         virtual void Init() NOEXCEPT override;
         virtual void Shutdown() NOEXCEPT override;
+
+        virtual void BeginRendering() NOEXCEPT override;
+        virtual void EndRendering() NOEXCEPT override;
     };
 }

@@ -7,7 +7,8 @@
 
 namespace Monoworks 
 {
-        Ref<RHI::IGraphicsAPI> CStaticRenderer::m_Instance;
+        Ref<RHI::IGraphicsAPI> CStaticRenderer::m_pInstance;
+        u32                    CStaticRenderer::m_CurrentFrameIndex;
 
         void CStaticRenderer::Init() noexcept
         {
@@ -16,16 +17,31 @@ namespace Monoworks
             switch (CApplication::GetGraphicsAPI())
             {
             case MW_GAPI_NONE: MW_ASSERT("Headless mode not supported");
-            case MW_GAPI_VULKAN: m_Instance = Ref<RHI::CVulkanRenderer>::Create(); break;
+            case MW_GAPI_VULKAN: m_pInstance = Ref<RHI::CVulkanRenderer>::Create(); break;
             }
 
-            m_Instance->Init();
+            m_pInstance->Init();
 
         };
         
         void CStaticRenderer::Shutdown() noexcept 
         {
             MW_PROFILE_FUNC;
-            m_Instance->Shutdown();
+            m_pInstance->Shutdown();
         }; 
+
+
+        void CStaticRenderer::BeginRendering() NOEXCEPT
+        {
+            MW_PROFILE_FUNC;
+            m_pInstance->BeginRendering();
+        };
+
+        void CStaticRenderer::EndRendering() NOEXCEPT
+        {
+            MW_PROFILE_FUNC;
+
+            m_CurrentFrameIndex = ( m_CurrentFrameIndex + 1 ) % MFIF;
+            m_pInstance->EndRendering();
+        };
 }

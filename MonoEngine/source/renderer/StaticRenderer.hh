@@ -12,8 +12,12 @@ namespace Monoworks
         static void Init() NOEXCEPT;
         static void Shutdown() NOEXCEPT;
 
-    private:
+        static void BeginRendering() NOEXCEPT;
+        static void EndRendering() NOEXCEPT;
 
-        static Ref<RHI::IGraphicsAPI> m_Instance;
+        NODISCARD static u32 GetCurrentFrameIndex() NOEXCEPT { return m_CurrentFrameIndex; };
+    private:
+        static u32 m_CurrentFrameIndex;
+        static Ref<RHI::IGraphicsAPI> m_pInstance;
     };
 }

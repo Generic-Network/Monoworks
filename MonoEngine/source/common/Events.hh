@@ -4,31 +4,32 @@
 
 namespace Monoworks 
 {
-	namespace Events 
-	{
+
 		// non-data events
 
 		/// @brief Triggered when the window is closed.
-		struct SWindowClose {};
+		MW_DEFINE_DISPATCHABLE_EVENT( WindowClose );
 
 		/// @brief Triggered when the window gains focus.
-		struct SWindowFocus {};
+		MW_DEFINE_DISPATCHABLE_EVENT( WindowFocus );
 
 		/// @brief Triggered when the window loses focus.
-		struct SWindowLostFocus {};
+		MW_DEFINE_DISPATCHABLE_EVENT( WindowLostFocus );
 
 		/// @brief Triggered for each application tick.
-		struct SAppTick {};
-
+		MW_DEFINE_DISPATCHABLE_EVENT( AppTick );
+		
 		/// @brief Triggered when the application updates its logic.
-		struct SAppUpdate {};
+		MW_DEFINE_DISPATCHABLE_EVENT( AppUpdate );
 
 		/// @brief Triggered when the application renders a frame.
-		struct SAppRender {};
+		MW_DEFINE_DISPATCHABLE_EVENT( AppRender );
+		
+		/// @brief Triggered when the application starts an entire frame cycle (before deffered event-processing).
+		MW_DEFINE_DISPATCHABLE_EVENT( AppFrame );
 
-		/// @brief Triggered when the application starts an entire frame cycle (before deffered event-processing)
-		struct SAppFrame {};
-
+		namespace Events
+		{
 		// data events 
 
 		// window

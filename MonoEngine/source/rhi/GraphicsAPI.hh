@@ -10,6 +10,9 @@ namespace Monoworks::RHI
 
         virtual void Init() NOEXCEPT = 0;
         virtual void Shutdown() NOEXCEPT = 0;
+
+        virtual void BeginRendering() NOEXCEPT = 0;
+        virtual void EndRendering() NOEXCEPT = 0;
     };
 
 }
