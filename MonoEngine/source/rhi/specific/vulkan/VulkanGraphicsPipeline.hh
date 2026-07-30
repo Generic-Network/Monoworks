@@ -20,6 +20,9 @@ namespace Monoworks::RHI
 
 		void Invalidate( const SPipelineCreationInfo* pInfo ) NOEXCEPT override;
 	
+		NODISCARD VkPipeline* GetVulkanPipeline() NOEXCEPT { return &m_VulkanPipeline; }
+		NODISCARD VkPipelineLayout* GetVulkanPipelineLayout ( ) NOEXCEPT { return &m_VulkanPipelineLayout; }
+
 	private:
 		std::vector<VkPipelineColorBlendAttachmentState> m_ColorAttachmentStates; 
 		std::vector<VkDynamicState> m_DynamicStates;

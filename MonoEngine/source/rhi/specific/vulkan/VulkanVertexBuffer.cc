@@ -99,5 +99,9 @@ namespace Monoworks::RHI
 		);
 	}
 
+	void CVulkanVertexBuffer::SetLayout( const CBufferLayout& layout ) NOEXCEPT
+	{
+
+	}
 
 }

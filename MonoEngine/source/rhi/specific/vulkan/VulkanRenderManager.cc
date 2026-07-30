@@ -1,7 +1,10 @@
 #include <mwpch.hh>
 
+#include <core/Application.hh>
 #include <renderer/StaticRenderer.hh>
+
 #include <rhi/specific/vulkan/VulkanContext.hh>
+#include <rhi/specific/vulkan/VulkanPresenter.hh>
 
 #include "VulkanRenderManager.hh"
 
@@ -14,7 +17,7 @@ namespace Monoworks::RHI
 	void CVulkanRenderManager::Init() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
-
+		MW_INFO( "Initializa CVulkanRenderManager" );
 		VkSemaphoreCreateInfo semaphoreCreateInfo{};
 		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -67,6 +70,7 @@ namespace Monoworks::RHI
 			}
 		}
 
+
 	};
 
 	void CVulkanRenderManager::Shutdown() NOEXCEPT
@@ -101,23 +105,34 @@ namespace Monoworks::RHI
 			if ( frameData.CommandPool )
 				vkDestroyCommandPool( device, frameData.CommandPool, nullptr );
 		}
-
+		MW_INFO( "Shutdown CVulkanRenderManager" );
 	};
 
 	void CVulkanRenderManager::BeginRootCommandBuffer( u32 frameIndex ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
 
+
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 		vkBeginCommandBuffer( m_RootFrameData[frameIndex].CommandBuffer, &beginInfo );
 
+		if ( CApplication::GetCreateInfos()->UseSDL )
+		{
+			auto presenter = CVulkanContext::GetPresenter();
+			SVulkanSDLPresentationTransitionRenderInfo renderInfo{};
+			renderInfo.pCmdBuffer = CVulkanRenderManager::GetRootCommandBuffer( frameIndex );
+			renderInfo.ImageIndex = CStaticRenderer::GetCurrentImageIndex();
+
+			presenter->TransitionRender( &renderInfo );
+		}
 	};
 
 	void CVulkanRenderManager::EndRootCommandBuffer( u32 frameIndex ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
+
 		vkEndCommandBuffer( m_RootFrameData[frameIndex].CommandBuffer );
 	};
 
@@ -125,7 +140,6 @@ namespace Monoworks::RHI
 	{
 		MW_PROFILE_FUNC;
 		auto device = CVulkanContext::GetDevice();
-
 		if ( m_RootFrameData[frameIndex].InFlightFence )
 			vkWaitForFences( *device->GetDevice(), 1, &m_RootFrameData[frameIndex].InFlightFence, VK_TRUE, UINT64_MAX );
 
@@ -162,7 +176,6 @@ namespace Monoworks::RHI
 	void CVulkanRenderManager::BeginWorkerCommandBuffers( u32 frameIndex ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
-		
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -171,7 +184,6 @@ namespace Monoworks::RHI
 		{
 			vkBeginCommandBuffer( workerData.CommandBuffers[frameIndex], &beginInfo );
 		}
-
 	};
 
 	void CVulkanRenderManager::EndWorkerCommandBuffers( u32 frameIndex ) NOEXCEPT

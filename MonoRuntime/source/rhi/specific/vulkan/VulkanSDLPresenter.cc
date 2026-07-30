@@ -10,6 +10,130 @@
 
 namespace Monoworks::RHI 
 {
+	static void TransitionImageLayout3(
+		VkCommandBuffer commandBuffer,
+		VkImage image,
+		VkImageLayout oldLayout,
+		VkImageLayout newLayout,
+		VkPipelineStageFlags srcStageMask,
+		VkPipelineStageFlags dstStageMask )
+	{
+		VkImageMemoryBarrier barrier{};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.oldLayout = oldLayout;
+		barrier.newLayout = newLayout;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = image;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+
+		if ( oldLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR )
+		{
+			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask = 0;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+			newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR &&
+			newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+			newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL )
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+			newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL )
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_UNDEFINED )
+		{
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			barrier.dstAccessMask = 0;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
+			barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL &&
+			newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL )
+		{
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		}
+		else
+		{
+			MW_ASSERT( false, "Unsupported layout transition" );
+		}
+
+		vkCmdPipelineBarrier(
+			commandBuffer,
+			srcStageMask,
+			dstStageMask,
+			0,
+			0, nullptr,
+			0, nullptr,
+			1, &barrier
+		);
+	}
+
 	CVulkanSDLPresenter::CVulkanSDLPresenter( SExtent2D swapchainExtent, bool vsync, SDL_Window* window ) NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
@@ -148,7 +272,7 @@ namespace Monoworks::RHI
 
 		SwapChainSupportDetails swapChainSupport = info->pVulkanDevice->QuerySwapChainSupport(info->pPhysDevice, m_Surface);
 
-		VkSurfaceFormatKHR surfaceFormat;
+		VkSurfaceFormatKHR surfaceFormat{};
 		
 		for ( const auto& availableFormat : swapChainSupport.Formats )
 		{
@@ -160,7 +284,9 @@ namespace Monoworks::RHI
 			}
 			surfaceFormat = swapChainSupport.Formats[0];
 		};
-				
+		
+		m_ColorFormat = surfaceFormat.format;
+
 		VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
 		if ( !m_VSync )
@@ -282,6 +408,7 @@ namespace Monoworks::RHI
 			textureInfo.GenerateImage = false;
 			textureInfo.GenerateSampler = false;
 			textureInfo.GenerateImageView = false;
+			textureInfo.ManageImage = false;
 			textureInfo.ImageLayout = MW_IMAGE_LAYOUT_UNDEFINED;
 			textureInfo.Usage = MW_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			textureInfo.AspectMask = MW_IMAGE_ASPECT_COLOR_BIT;
@@ -304,6 +431,7 @@ namespace Monoworks::RHI
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
 
+			// TODO: allocation callbacks
 			MW_VK_CHECK( vkCreateImageView( *info->pDevice, &viewInfo, nullptr, vulkanTexture->GetImageView() ), "Failed to create Image View" );
 
 			
@@ -311,6 +439,54 @@ namespace Monoworks::RHI
 
 	}
 
+	void CVulkanSDLPresenter::TransitionPresent( const IPresentationTransitionPresentInfo* pInfo ) NOEXCEPT 
+	{
+		MW_PROFILE_FUNC;
+
+		MW_ASSERT( pInfo->Medium == MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
+
+		auto info = ( SVulkanSDLPresentationTransitionPresentInfo* )pInfo;
+		auto texture = m_SwapchainImages[info->ImageIndex].As<CVulkanTexture2D>();
+	
+		if ( texture->Layout = MW_IMAGE_LAYOUT_PRESENT_SRC_KHR )
+			return;
+
+		TransitionImageLayout3(
+			*info->pCmdBuffer,
+			*texture->GetImage(),
+			( VkImageLayout )texture->Layout,
+			VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT
+		);
+
+		texture->Layout = MW_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	}
+
+	void CVulkanSDLPresenter::TransitionRender( const IPresentationTransitionRenderInfo* pInfo ) NOEXCEPT
+	{
+		MW_PROFILE_FUNC;
+
+		MW_ASSERT( pInfo->Medium == MW_PRESENTATION_MEDIUM_VULKAN_SDL, "Invalid Presentation Medium" );
+
+		auto info = ( SVulkanSDLPresentationTransitionPresentInfo* )pInfo;
+
+		auto texture = m_SwapchainImages[info->ImageIndex].As<CVulkanTexture2D>();
+
+		if ( texture->Layout == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
+			return;
+
+		TransitionImageLayout3(
+			*info->pCmdBuffer,
+			*texture->GetImage(),
+			( VkImageLayout )texture->Layout,
+			VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
+		);
+
+		texture->Layout = MW_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	}
 
 	void CVulkanSDLPresenter::Shutdown() NOEXCEPT
 	{
@@ -320,11 +496,18 @@ namespace Monoworks::RHI
 		auto device = CVulkanContext::GetDevice();
 		vkDeviceWaitIdle( *device->GetDevice() );
 
-		if ( m_Swapchain != nullptr )
+		m_SwapchainImages.clear();
+
+		// TODO: Allocation Callbacks
+		if ( m_Swapchain )
 		{
 			vkDestroySwapchainKHR( *device->GetDevice(), m_Swapchain, nullptr );
 			m_Swapchain = nullptr;
 		}
+
+		if ( m_Surface )
+			vkDestroySurfaceKHR( *CVulkanContext::GetInstance(), m_Surface, nullptr);
+
 
 	}
 

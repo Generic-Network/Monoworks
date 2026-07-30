@@ -52,6 +52,12 @@ namespace Monoworks::RHI
 		m_GenerateImageView = pInfo->GenerateImageView;
 		m_GenerateSampler = pInfo->GenerateSampler;
 
+
+		m_ManageImage = pInfo->ManageImage;
+		m_ManageImageView = pInfo->ManageImageView;
+		m_ManageSampler = pInfo->ManageSampler;
+
+
 		auto allocator = CVulkanContext::GetAllocator();
 
 		if ( pInfo->GenerateImage ) 
@@ -107,9 +113,15 @@ namespace Monoworks::RHI
 		MW_PROFILE_FUNC;
 		auto allocator = CVulkanContext::GetAllocator();
 		auto device = CVulkanContext::GetDevice();
-		vmaDestroyImage( *allocator, m_Image, m_ImageAllocation );
-		vkDestroyImageView( *device->GetDevice(), m_ImageView, nullptr );
-		vkDestroySampler( *device->GetDevice(),  m_Sampler, nullptr);
+		if ( m_Image && m_ManageImage )
+			vmaDestroyImage( *allocator, m_Image, m_ImageAllocation );
+
+		// TODO: AllocationCallbacks
+		if ( m_ImageView && m_ManageImageView )
+			vkDestroyImageView( *device->GetDevice(), m_ImageView, nullptr );
+
+		if ( m_Sampler && m_ManageSampler )
+			vkDestroySampler( *device->GetDevice(), m_Sampler, nullptr );
 
 	}
 

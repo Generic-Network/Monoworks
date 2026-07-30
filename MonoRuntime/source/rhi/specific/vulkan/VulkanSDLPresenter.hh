@@ -24,9 +24,11 @@ namespace Monoworks::RHI
 		bool OnResize( SEvent& event ) override;
 
 		NODISCARD u32 Acquire( const IPresentationAcquisitionInfo* pInfo ) NOEXCEPT override;
+		void TransitionRender( const IPresentationTransitionRenderInfo* pInfo ) NOEXCEPT override;
+		void TransitionPresent( const IPresentationTransitionPresentInfo* pInfo ) NOEXCEPT override; 
 		void Present( const IPresentationPresentInfo* pInfo ) NOEXCEPT override;
 
-		NODISCARD const std::vector<Ref<ITexture2D>>& GetSwapchainImages() NOEXCEPT override { return m_SwapchainImages; };
+		NODISCARD std::vector<Ref<ITexture2D>>& GetSwapchainImages() NOEXCEPT override { return m_SwapchainImages; };
 		NODISCARD void* GetSurface() NOEXCEPT override { return &m_Surface; };
 		NODISCARD VkSwapchainKHR* GetSwapchain() NOEXCEPT { return &m_Swapchain; }
 	private:

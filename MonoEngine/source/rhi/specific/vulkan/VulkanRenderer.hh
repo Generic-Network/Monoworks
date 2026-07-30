@@ -1,6 +1,10 @@
 #pragma once
 #include <common/Base.hh>
 
+#include <rhi/agnostic/IndexBuffer.hh>
+#include <rhi/agnostic/VertexBuffer.hh>
+#include <rhi/agnostic/GraphicsPipeline.hh>
+
 #include <rhi/GraphicsAPI.hh>
 
 namespace Monoworks::RHI
@@ -12,5 +16,10 @@ namespace Monoworks::RHI
 
         virtual void BeginRendering() NOEXCEPT override;
         virtual void EndRendering() NOEXCEPT override;
+
+    private:
+        Ref<IVertexBuffer> m_Vertices;
+        Ref<IIndexBuffer> m_Indices;
+        Ref<IGraphicsPipeline> m_Pipeline;
     };
 }

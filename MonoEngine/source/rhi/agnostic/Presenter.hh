@@ -40,6 +40,16 @@ namespace Monoworks::RHI
 		const EPresentationMedium Medium = MW_PRESENTATION_MEDIUM_NONE;
 	};
 
+	struct IPresentationTransitionPresentInfo
+	{
+		const EPresentationMedium Medium = MW_PRESENTATION_MEDIUM_NONE;
+	};
+
+	struct IPresentationTransitionRenderInfo
+	{
+		const EPresentationMedium Medium = MW_PRESENTATION_MEDIUM_NONE;
+	};
+
 	class IPresenter 
 	{
 	public:
@@ -54,9 +64,11 @@ namespace Monoworks::RHI
 		virtual bool OnResize( SEvent& event ) = 0;
 
 		NODISCARD virtual u32 Acquire( const IPresentationAcquisitionInfo* pInfo ) NOEXCEPT = 0;
+		virtual void TransitionRender( const IPresentationTransitionRenderInfo* pInfo ) NOEXCEPT = 0;
+		virtual void TransitionPresent( const IPresentationTransitionPresentInfo* pInfo ) NOEXCEPT = 0;
 		virtual void Present( const IPresentationPresentInfo* pInfo ) NOEXCEPT = 0;
-
-		NODISCARD const virtual std::vector<Ref<ITexture2D>>& GetSwapchainImages() NOEXCEPT = 0;
+		// TODO: rename this
+		NODISCARD virtual std::vector<Ref<ITexture2D>>& GetSwapchainImages() NOEXCEPT = 0;
 		NODISCARD virtual void* GetSurface() NOEXCEPT = 0;
 		NODISCARD const EPresentationMedium GetMedium() const NOEXCEPT { return m_PresentationMedium; };
 

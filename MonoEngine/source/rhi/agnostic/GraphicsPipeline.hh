@@ -107,7 +107,7 @@ namespace Monoworks::RHI
 		MW_PIPELINE_CREATION_FLAGS_MAX_ENUM = 0x7FFFFFFF
 	};
 
-	using EPipelineFlags = flags_t;
+	using EPipelineCreationFlags = flags_t;
 
 	struct SShaderByteCode
 	{
@@ -134,8 +134,8 @@ namespace Monoworks::RHI
 		std::vector<SShaderObject> ShaderObjects;
 		std::vector<EImageFormat> ColorFormats;
 		std::vector<SColorBlendAttachmentState> ColorBlendAttachments;
-		std::vector<EDynamicState> DynamicStates = { MW_DYNAMIC_STATE_VIEWPORT_COUNT, MW_DYNAMIC_STATE_VIEWPORT_COUNT };
-		EPipelineCreationFlagBits Flags;
+		std::vector<EDynamicState> DynamicStates = { MW_DYNAMIC_STATE_VIEWPORT, MW_DYNAMIC_STATE_SCISSOR };
+		EPipelineCreationFlags Flags;
 		EImageFormat DepthAttachmentFormat;
 		EImageFormat StencilAttachmentFormat;
 
@@ -150,13 +150,13 @@ namespace Monoworks::RHI
 	class IGraphicsPipeline 
 	{
 	public:
-		virtual ~IGraphicsPipeline() NOEXCEPT;
+		virtual ~IGraphicsPipeline() NOEXCEPT = default;
 		
 		virtual void Init( const SPipelineCreationInfo* pInfo ) = 0;
 		virtual void Shutdown() = 0;
 		
 		virtual void Invalidate( const SPipelineCreationInfo* pInfo ) = 0;
 
-		Ref<IGraphicsPipeline> Create( const SPipelineCreationInfo* pInfo ) NOEXCEPT;
+		static Ref<IGraphicsPipeline> Create( const SPipelineCreationInfo* pInfo ) NOEXCEPT;
 	};
 }

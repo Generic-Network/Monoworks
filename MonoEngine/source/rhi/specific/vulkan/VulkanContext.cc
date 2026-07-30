@@ -46,22 +46,39 @@ namespace Monoworks::RHI
 	{
 		MW_PROFILE_FUNC;
 
-		switch (messageSeverity)
+		auto messageTypeFunc = [&]()
+			{
+				switch ( messageType ) 
+				{
+				case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+					return "";
+				case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+					return "Validation";
+				case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+					return "Performance";
+				case VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT:
+					return "Device AB";
+				default:
+					return "";
+				}
+			};
+
+		switch  ( messageSeverity )
 		{
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-			MW_TRACE("Vulkan: {}", pCallbackData->pMessage);
+			MW_TRACE( "Vulkan {}: {}", messageTypeFunc(), pCallbackData->pMessage );
 			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-			MW_INFO("Vulkan: {}", pCallbackData->pMessage);
+			MW_INFO( "Vulkan {}: {}", messageTypeFunc(), pCallbackData->pMessage );
 			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-			MW_WARN("Vulkan: {}", pCallbackData->pMessage);
+			MW_WARN( "Vulkan {}: {}", messageTypeFunc(), pCallbackData->pMessage );
 			break;
 		case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-			MW_ERROR("Vulkan: {}", pCallbackData->pMessage);
+			MW_ERROR( "Vulkan {}: {}", messageTypeFunc(), pCallbackData->pMessage );
 			break;
 		default:
-			MW_ERROR( "Vulkan {}", pCallbackData->pMessage );
+			MW_ERROR( "Vulkan {}: {}", messageTypeFunc(), pCallbackData->pMessage );
 		}
 
 		return VK_FALSE;
@@ -196,9 +213,12 @@ namespace Monoworks::RHI
 	void CVulkanContext::Shutdown() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
-		MW_INFO("Shutdown CVulkanContext");
 		
 		// TODO: Allocation Callbacks
+
+		MW_PROFILE_VK_DESTROY_CTX( TracyGraphicsContext );
+		MW_PROFILE_VK_DESTROY_CTX( TracyComputeContext );
+		MW_PROFILE_VK_DESTROY_CTX( TracyTransferContext );
 
 		if ( m_PipelineCache )
 		{
@@ -214,10 +234,16 @@ namespace Monoworks::RHI
 		m_Presenter->Shutdown();
 		
 		m_Device.Shutdown();
+
+		// TODO: Allocation Callbacks
+		vkDestroyDebugUtilsMessengerEXT( m_Instance, m_DebugMessenger, nullptr );
+
 		if ( m_Instance )
 		{
 			vkDestroyInstance( m_Instance, nullptr );
 		}
+
+		MW_INFO( "Shutdown CVulkanContext" );
 	}
 
 	void CVulkanContext::CreateInstance() NOEXCEPT
@@ -257,7 +283,7 @@ namespace Monoworks::RHI
 			debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 			debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
 				VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-			debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+			debugCreateInfo.messageType = 
 				VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
 				VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 			debugCreateInfo.pfnUserCallback = DebugCallback;
@@ -310,18 +336,16 @@ namespace Monoworks::RHI
 		if (!m_EnableValidationLayers) return;
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-		debugCreateInfo.messageSeverity = 
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+		debugCreateInfo.messageSeverity =
 			VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | 
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 		debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
 			VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
 			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 		debugCreateInfo.pfnUserCallback = DebugCallback;
 		debugCreateInfo.pUserData = nullptr;
 
-		MW_VK_CHECK(CreateDebugUtilsMessengerEXT(m_Instance, &debugCreateInfo, nullptr, &m_DebugMessenger), "Failed to setup debug messenger");
+		MW_VK_CHECK( CreateDebugUtilsMessengerEXT( m_Instance, &debugCreateInfo, nullptr, &m_DebugMessenger ), "Failed to setup debug messenger" );
 	}
 
 
