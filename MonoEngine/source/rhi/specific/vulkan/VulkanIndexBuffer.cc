@@ -17,11 +17,16 @@ namespace Monoworks::RHI
 		MW_PROFILE_FUNC;
 		auto allocator = CVulkanContext::GetAllocator();
 
+		m_SizeBytes = size * sizeof( Index );
+		m_Offset = offset * sizeof( Index );
+		m_Count = size; 
+		m_UploadBytes = m_Count * sizeof( Index );
+
 		CVulkanContext::GetDevice()->CreateBuffer(
 			allocator,
 			&m_IndexBuffer,
 			&m_IndexBufferAllocation,
-			size,
+			m_UploadBytes,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);

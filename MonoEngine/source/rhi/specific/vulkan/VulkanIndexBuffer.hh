@@ -24,11 +24,11 @@ namespace Monoworks::RHI
 		NODISCARD u32 GetCount() NOEXCEPT override { return m_Count; };
 
 	private:
-		VkBuffer m_IndexBuffer;
-		VmaAllocation m_IndexBufferAllocation;
+		VkBuffer m_IndexBuffer = nullptr;
+		VmaAllocation m_IndexBufferAllocation = nullptr;
 
-		VkBuffer m_StagingBuffer; 
-		VmaAllocation m_StagingBufferAllocation;
+		VkBuffer m_StagingBuffer = nullptr; 
+		VmaAllocation m_StagingBufferAllocation = nullptr;
 
 		u64 m_Count = 0;
 		u64 m_SizeBytes = 0;

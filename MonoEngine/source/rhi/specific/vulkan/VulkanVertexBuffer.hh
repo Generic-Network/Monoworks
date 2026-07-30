@@ -21,11 +21,11 @@ namespace Monoworks::RHI
 		NODISCARD VkBuffer*			GetVulkanBuffer()	NOEXCEPT override { return &m_VertexBuffer; };
 
 	private:
-		VkBuffer m_VertexBuffer;
-		VmaAllocation m_VertexBufferAllocation;
+		VkBuffer m_VertexBuffer = nullptr;
+		VmaAllocation m_VertexBufferAllocation = nullptr;
 
-		VkBuffer m_StagingBuffer;
-		VmaAllocation m_StagingBufferAllocation;
+		VkBuffer m_StagingBuffer = nullptr;
+		VmaAllocation m_StagingBufferAllocation = nullptr;
 
 		CBufferLayout m_Layout;
 

@@ -410,6 +410,9 @@ namespace Monoworks::RHI
 		allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
 		allocInfo.requiredFlags = properties;
 
+		if ( properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT )
+			allocInfo.flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+		
 		auto res = vmaCreateBuffer(*pAllocator, &bufferInfo, &allocInfo, pBuffer, pBufferMemory, nullptr);
 		MW_VK_CHECK(res, "Failed to create buffer");
 		MW_PROFILE_ALLOC_N((void*)pBuffer, size, "GPU VRAM");
