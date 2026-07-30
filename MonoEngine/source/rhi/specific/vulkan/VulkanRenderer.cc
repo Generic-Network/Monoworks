@@ -3,6 +3,7 @@
 #include <rhi/specific/vulkan/VulkanRenderManager.hh>
 #include <rhi/specific/vulkan/VulkanContext.hh>
 #include <rhi/specific/vulkan/VulkanPresenter.hh>
+#include <rhi/specific/vulkan/VulkanTexture.hh>
 
 #include <renderer/StaticRenderer.hh>
 #include <core/Application.hh>
@@ -42,7 +43,7 @@ namespace Monoworks::RHI
             acquisitionInfo.pImageAvailableSemaphore = CVulkanRenderManager::GetImageAvailableSemaphore( frameIndex );
             acquisitionInfo.pInFlightFence = CVulkanRenderManager::GetInFlightFence( frameIndex );
 
-			presenter->Acquire( &acquisitionInfo );
+			*imageIndex = presenter->Acquire( &acquisitionInfo );
 		}
 
 
@@ -55,20 +56,53 @@ namespace Monoworks::RHI
     {
         MW_PROFILE_FUNC;
         u32 frameIndex = CStaticRenderer::GetCurrentFrameIndex();
+		auto presenter = CVulkanContext::GetPresenter();
 
         CVulkanRenderManager::EndWorkerCommandBuffers( frameIndex );
+
+		if ( CApplication::GetCreateInfos()->UseSDL && CApplication::GetCreateInfos()->UseSwapchain )
+		{
+			const auto imageIndex = CStaticRenderer::GetCurrentImageIndex();
+			const auto& swapchainImages = presenter->GetSwapchainImages();
+			MW_ASSERT( imageIndex < swapchainImages.size(), "Invalid swapchain image index" );
+
+			const auto& swapchainImage = swapchainImages[imageIndex];
+			if ( swapchainImage->Layout != MW_IMAGE_LAYOUT_PRESENT_SRC_KHR )
+			{
+				auto sourceStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+				if ( swapchainImage->Layout == MW_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL )
+				{
+					sourceStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+				}
+				else if ( swapchainImage->Layout != MW_IMAGE_LAYOUT_UNDEFINED )
+				{
+					sourceStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+				}
+
+				auto vulkanTexture = swapchainImage.As<CVulkanTexture2D>();
+				TransitionImageLayout2(
+					*CVulkanRenderManager::GetRootCommandBuffer( frameIndex ),
+					*vulkanTexture->GetImage(),
+					(VkImageLayout)swapchainImage->Layout,
+					VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+					sourceStageMask,
+					VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT );
+
+				swapchainImage->Layout = MW_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+				swapchainImage->PipelineFlags = MW_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+			}
+		}
+
         CVulkanRenderManager::EndRootCommandBuffer( frameIndex );
 
         CVulkanRenderManager::SubmitRootCommandBuffer( frameIndex );
-
-        auto presenter = CVulkanContext::GetPresenter();
 
         if ( CApplication::GetCreateInfos()->UseSDL && CApplication::GetCreateInfos()->UseSwapchain )
         {
             SVulkanSDLPresentationPresentInfo presentInfo{};
             presentInfo.pDevice = CVulkanContext::GetDevice()->GetDevice();
             presentInfo.pPhysDevice = CVulkanContext::GetDevice()->GetPhysicalDevice();
-            presentInfo.pImageIndex = CStaticRenderer::GetCurrentFrameIndexPtr();
+            presentInfo.pImageIndex = CStaticRenderer::GetCurrentImageIndexPtr();
             presentInfo.pPresentQueue = CVulkanContext::GetDevice()->GetPresentQueue();
             presentInfo.pRenderFinishedSemaphore = CVulkanRenderManager::GetRenderFinishedSemaphore( frameIndex );
             presentInfo.pVulkanDevice = CVulkanContext::GetDevice();

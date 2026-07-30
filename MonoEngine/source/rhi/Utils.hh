@@ -247,6 +247,12 @@ namespace Monoworks::RHI
 			barrier.srcAccessMask = 0;
 			barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 		}
+		else if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+			newLayout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR )
+		{
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = 0;
+		}
 		else if ( oldLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL &&
 			newLayout == VK_IMAGE_LAYOUT_UNDEFINED )
 		{
