@@ -41,12 +41,13 @@ namespace Monoworks::RHI
 	void CVulkanResourceUploader::Shutdown() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
-		MW_TRACE("Shutdown CVulkanResourceUploader");
 		if (m_Fence)
 			vkDestroyFence(*CVulkanContext::GetDevice()->GetDevice(), m_Fence, nullptr);
 
 		m_Fence = VK_NULL_HANDLE;
 		m_Commandbuffer = VK_NULL_HANDLE;
+
+		MW_TRACE( "Shutdown CVulkanResourceUploader" );
 	}
 
 	void CVulkanResourceUploader::Begin() NOEXCEPT

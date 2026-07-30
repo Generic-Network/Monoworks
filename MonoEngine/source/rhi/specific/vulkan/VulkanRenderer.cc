@@ -21,8 +21,8 @@ namespace Monoworks::RHI
     void CVulkanRenderer::Shutdown() NOEXCEPT 
     {
         MW_PROFILE_FUNC;
-        MW_INFO("Shutdown CVulkanRenderer");
         CVulkanRenderManager::Shutdown();
+        MW_INFO( "Shutdown CVulkanRenderer" );
     }
 
     void CVulkanRenderer::BeginRendering() NOEXCEPT

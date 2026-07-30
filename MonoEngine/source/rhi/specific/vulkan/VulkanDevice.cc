@@ -16,8 +16,7 @@ namespace Monoworks::RHI
 	void CVulkanDevice::Init(VkInstance* instance) noexcept
 	{
 		MW_PROFILE_FUNC;
-		MW_INFO("Initialize CVulkanDevice");
-
+		MW_INFO( "Initialize CVulkanDevice" );
 		m_Instance = instance;
 
 		if (CApplication::GetCreateInfos()->UseSwapchain)
@@ -27,17 +26,28 @@ namespace Monoworks::RHI
 
 		CreateLogicalDevice();
 		CreateCommandPool();
+		
 	}
 
 	void CVulkanDevice::Shutdown() noexcept
 	{
 		MW_PROFILE_FUNC;
-		MW_INFO("Shutdown CVulkanDevice");
 
 		vkDeviceWaitIdle(m_Device);
-		vkDestroyCommandPool(m_Device, m_GraphicsCommandPool, nullptr);
-		vkDestroyCommandPool(m_Device, m_TransferCommandPool, nullptr);
-		vkDestroyDevice(m_Device, nullptr);
+		// TODO: Allocation Callbacks
+		if ( m_GraphicsCommandPool )
+			vkDestroyCommandPool(m_Device, m_GraphicsCommandPool, nullptr);
+
+		if ( m_ComputeCommandPool )
+			vkDestroyCommandPool( m_Device, m_ComputeCommandPool, nullptr );
+
+		if ( m_TransferCommandPool )
+			vkDestroyCommandPool(m_Device, m_TransferCommandPool, nullptr);
+
+		if ( m_Device )
+			vkDestroyDevice(m_Device, nullptr);
+
+		MW_INFO( "Shutdown CVulkanDevice" );
 	}
 
 
@@ -162,16 +172,33 @@ namespace Monoworks::RHI
 			priorityIndex++;
 		}
 
-		VkPhysicalDeviceVulkan14Features vulkan14Features{};
-		vulkan14Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
-		vulkan14Features.pushDescriptor = true; 
-		vulkan14Features.shaderSubgroupRotate = true;
-		vulkan14Features.shaderSubgroupRotateClustered = true;
+		VkPhysicalDeviceVulkan13Features vulkan13Features{};
+		vulkan13Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+		vulkan13Features.dynamicRendering = VK_TRUE;
+		vulkan13Features.synchronization2 = VK_TRUE;
+		vulkan13Features.maintenance4 = VK_TRUE;
+		vulkan13Features.pNext = nullptr;
 
-		VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
+		VkPhysicalDeviceFeatures2 deviceFeatures2{};
 		deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+
 		deviceFeatures2.features.samplerAnisotropy = VK_TRUE;
-		deviceFeatures2.pNext = &vulkan14Features;
+		deviceFeatures2.features.geometryShader = VK_TRUE;
+		deviceFeatures2.features.tessellationShader = VK_TRUE;
+		deviceFeatures2.features.fillModeNonSolid = VK_TRUE;
+		deviceFeatures2.features.depthClamp = VK_TRUE;
+		deviceFeatures2.features.multiDrawIndirect = VK_TRUE;
+		deviceFeatures2.features.drawIndirectFirstInstance = VK_TRUE;
+		deviceFeatures2.features.textureCompressionBC = VK_TRUE;
+		deviceFeatures2.features.fragmentStoresAndAtomics = VK_TRUE;
+		deviceFeatures2.features.vertexPipelineStoresAndAtomics = VK_TRUE;
+		deviceFeatures2.features.shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+		deviceFeatures2.features.shaderUniformBufferArrayDynamicIndexing = VK_TRUE;
+		deviceFeatures2.features.shaderStorageBufferArrayDynamicIndexing = VK_TRUE;
+		deviceFeatures2.features.independentBlend = VK_TRUE;
+		deviceFeatures2.features.multiViewport = VK_TRUE;
+
+		deviceFeatures2.pNext = &vulkan13Features;
 
 		VkDeviceCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -256,9 +283,14 @@ namespace Monoworks::RHI
 		VkPhysicalDevicePushDescriptorProperties pushDescriptors{};
 		pushDescriptors.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES;
 
+		VkPhysicalDeviceSynchronization2Features sync2Features{};
+		sync2Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+		sync2Features.synchronization2 = VK_TRUE;
+		sync2Features.pNext = &pushDescriptors;
+
 		VkPhysicalDeviceFeatures2 features2 = {};
 		features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-		features2.pNext = &pushDescriptors;
+		features2.pNext = &sync2Features;
 
 		vkGetPhysicalDeviceFeatures2(*pPhysDevice, &features2);
 

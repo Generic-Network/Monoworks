@@ -14,10 +14,10 @@ namespace Monoworks
 		void CStaticRenderer::Init() noexcept
         {
             MW_PROFILE_FUNC;
-
-            switch (CApplication::GetGraphicsAPI())
+            MW_INFO( "Initialize CStaticRenderer" );
+            switch ( CApplication::GetGraphicsAPI() )
             {
-            case MW_GAPI_NONE: MW_ASSERT("Headless mode not supported");
+            case MW_GAPI_NONE: MW_ASSERT( "Headless mode not supported" ); break;
             case MW_GAPI_VULKAN: m_pInstance = Ref<RHI::CVulkanRenderer>::Create(); break;
             }
 
@@ -29,6 +29,7 @@ namespace Monoworks
         {
             MW_PROFILE_FUNC;
             m_pInstance->Shutdown();
+            MW_INFO( "Shutdown CStaticRenderer" );
         }; 
 
 

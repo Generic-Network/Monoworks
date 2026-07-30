@@ -45,6 +45,11 @@ namespace Monoworks::RHI
 		bool m_GenerateImageView = true;
 		bool m_GenerateSampler = true;
 
+		// to explicitly manage the memory of the handles (only current use is with the swapchain)
+		bool m_ManageImage = true;
+		bool m_ManageImageView = true; 
+		bool m_ManageSampler = true;
+
 		// TODO: Move to asset manager.
 		path_t m_Path;
 

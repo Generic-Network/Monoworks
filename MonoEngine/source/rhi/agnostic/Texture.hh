@@ -16,6 +16,10 @@ namespace Monoworks::RHI
 		bool GenerateImage = true;
 		bool GenerateImageView = true;
 		bool GenerateSampler = true;
+
+		bool ManageImage = true;
+		bool ManageImageView = true;
+		bool ManageSampler = true;
 	};
 
 	class ITexture 

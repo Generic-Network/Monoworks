@@ -148,7 +148,7 @@ namespace Monoworks::RHI
 
 		SwapChainSupportDetails swapChainSupport = info->pVulkanDevice->QuerySwapChainSupport(info->pPhysDevice, m_Surface);
 
-		VkSurfaceFormatKHR surfaceFormat;
+		VkSurfaceFormatKHR surfaceFormat{};
 		
 		for ( const auto& availableFormat : swapChainSupport.Formats )
 		{
@@ -160,7 +160,9 @@ namespace Monoworks::RHI
 			}
 			surfaceFormat = swapChainSupport.Formats[0];
 		};
-				
+		
+		m_ColorFormat = surfaceFormat.format;
+
 		VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
 		if ( !m_VSync )
@@ -282,6 +284,7 @@ namespace Monoworks::RHI
 			textureInfo.GenerateImage = false;
 			textureInfo.GenerateSampler = false;
 			textureInfo.GenerateImageView = false;
+			textureInfo.ManageImage = false;
 			textureInfo.ImageLayout = MW_IMAGE_LAYOUT_UNDEFINED;
 			textureInfo.Usage = MW_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			textureInfo.AspectMask = MW_IMAGE_ASPECT_COLOR_BIT;
@@ -304,6 +307,7 @@ namespace Monoworks::RHI
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
 
+			// TODO: allocation callbacks
 			MW_VK_CHECK( vkCreateImageView( *info->pDevice, &viewInfo, nullptr, vulkanTexture->GetImageView() ), "Failed to create Image View" );
 
 			
@@ -320,11 +324,18 @@ namespace Monoworks::RHI
 		auto device = CVulkanContext::GetDevice();
 		vkDeviceWaitIdle( *device->GetDevice() );
 
-		if ( m_Swapchain != nullptr )
+		m_SwapchainImages.clear();
+
+		// TODO: Allocation Callbacks
+		if ( m_Swapchain )
 		{
 			vkDestroySwapchainKHR( *device->GetDevice(), m_Swapchain, nullptr );
 			m_Swapchain = nullptr;
 		}
+
+		if ( m_Surface )
+			vkDestroySurfaceKHR( *CVulkanContext::GetInstance(), m_Surface, nullptr);
+
 
 	}
 

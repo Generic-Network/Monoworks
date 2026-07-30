@@ -14,7 +14,7 @@ namespace Monoworks::RHI
 	void CVulkanRenderManager::Init() NOEXCEPT
 	{
 		MW_PROFILE_FUNC;
-
+		MW_INFO( "Initializa CVulkanRenderManager" );
 		VkSemaphoreCreateInfo semaphoreCreateInfo{};
 		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -101,7 +101,7 @@ namespace Monoworks::RHI
 			if ( frameData.CommandPool )
 				vkDestroyCommandPool( device, frameData.CommandPool, nullptr );
 		}
-
+		MW_INFO( "Shutdown CVulkanRenderManager" );
 	};
 
 	void CVulkanRenderManager::BeginRootCommandBuffer( u32 frameIndex ) NOEXCEPT
