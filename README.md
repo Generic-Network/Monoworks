@@ -26,3 +26,5 @@ To build Monoworks you will need following things
   - **LunarG Vulkan SDK** supporting Vulkan `Version 1.3`
   - **Boost** `Version 1.92.0`
   - **Qt** `Version 6.11.1` (needed for compiling the Editor)
+
+medl
